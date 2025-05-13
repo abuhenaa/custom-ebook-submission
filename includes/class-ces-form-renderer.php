@@ -1,0 +1,27 @@
+<?php
+//direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+//Form render class
+class CES_Form_Renderer {
+
+    public function __construct() {
+        add_shortcode( 'ebook_submission_form', [$this, 'render_form']);
+        add_action( 'wp_enqueue_scripts', [$this, 'enqueue_assets']);
+    }
+
+    //enqueue assets
+    public function enqueue_assets() {
+        wp_enqueue_style('ces-style', CES_PLUGIN_URL . 'assets/css/ces-style.css');
+        wp_enqueue_script('ces-form', CES_PLUGIN_URL . 'assets/js/ces-scripts.js', ['jquery'], null, true);
+    }
+
+    public function render_form() {
+
+        ob_start();
+        include CES_PLUGIN_DIR . 'templates/ebook-submission-form.php';
+        return ob_get_clean();
+    }
+}
