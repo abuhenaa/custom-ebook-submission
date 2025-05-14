@@ -12,10 +12,10 @@ class CES_Form_Handler {
 
         check_admin_referer('ces_submit_nonce', 'ces_nonce');
 
-        $blacklist = new CES_Tag_Blacklist();
-        if ($blacklist->has_blacklisted_words($_POST['tags'] ?? '')) {
-            wp_die(__('Blacklisted word detected. Please revise your tags.', 'ces'));
-        }
+        //$blacklist = new CES_Tag_Blacklist();
+        // if ($blacklist->has_blacklisted_words($_POST['tags'] ?? '')) {
+        //     wp_die(__('Blacklisted word detected. Please revise your tags.', 'ces'));
+        // }
 
         // Handle product creation and metadata
         $product_id = wp_insert_post([
@@ -28,6 +28,19 @@ class CES_Form_Handler {
         // Save additional meta
         update_post_meta($product_id, '_ces_external_link', esc_url_raw($_POST['external_link'] ?? ''));
         update_post_meta($product_id, '_ces_main_category', sanitize_text_field($_POST['main_category'] ?? ''));
+
+        $regular_price = wc_clean($_POST['price']);
+        $sale_price = !empty($_POST['sale_price']) ? wc_clean($_POST['sale_price']) : '';
+
+        update_post_meta($product_id, '_regular_price', $regular_price);
+
+        if ($sale_price !== '') {
+            update_post_meta($product_id, '_sale_price', $sale_price);
+            update_post_meta($product_id, '_price', $sale_price);
+        } else {
+            update_post_meta($product_id, '_sale_price', '');
+            update_post_meta($product_id, '_price', $regular_price);
+        }
 
         // File Handling
         $file_handler = new CES_File_Handler($product_id);

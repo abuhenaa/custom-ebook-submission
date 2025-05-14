@@ -23,34 +23,88 @@ class CES_File_Handler {
             $file_path = $uploaded['file'];
             $ext = strtolower(pathinfo($file_path, PATHINFO_EXTENSION));
 
+            $processed = null;
             switch ($ext) {
                 case 'epub':
-                    $this->process_epub($file_path);
+                    $processed = $this->process_epub($file_path);
                     break;
                 case 'docx':
-                    $this->convert_docx_to_epub($file_path);
+                    $processed = $this->convert_docx_to_epub($file_path);
                     break;
                 case 'cbz':
-                    $this->process_cbz($file_path);
+                    $processed = $this->process_cbz($file_path);
                     break;
                 case 'zip':
                 case 'jpg':
                 case 'jpeg':
                 case 'png':
-                    $this->process_images_or_zip($file_path, $ext);
+                    $processed = $this->process_images_or_zip($file_path, $ext);
                     break;
                 default:
                     // Handle unsupported formats
                     break;
             }
 
-            update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($file_url));
+            update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($processed['file_url']));
+            //title meta
+            update_post_meta($this->product_id, '_ces_ebook_title', sanitize_text_field($processed['metadata']['title'] ?? ''));
+            //author meta
+            update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($processed['metadata']['author'] ?? ''));
         }
     }
 
     private function process_epub($file_path) {
-        // Extract metadata (e.g. title) if needed
-        // Store file path for preview with EPUB.js
+       // Set target directory inside uploads/books/
+       $upload_dir = wp_upload_dir();
+       $books_dir = $upload_dir['basedir']. '/books';
+
+        // Create books folder if not exists
+        if( ! file_exists( $books_dir )){
+            wp_mkdir_p( $books_dir );
+        }
+
+        // Move the file to /uploads/books/
+        $filename = basename( $file_path );
+        $destination = $books_dir . '/' . $filename;
+
+        if ( ! rename($file_path, $destination) ) {
+            return new WP_Error('epub_move_failed', 'Failed to move EPUB to books folder.');
+        }
+
+        // Extract metadata from the EPUB file (optional, basic)
+        $zip = new ZipArchive;
+        $metadata = [];
+
+        if( $zip->open( $destination ) === TRUE){
+             // Find the container.xml which tells where the OPF file is
+            $container_xml = $zip->getFromName('META-INF/container.xml');
+            if( $container_xml ){
+                $container = simplexml_load_string( $container_xml );
+                $opf_path = (string) $container->rootfiles->rootfile['full-path'];
+
+                // Load the OPF file (usually contains title, creator, etc.)
+                $opf_data = $zip->getFromName($opf_path);
+                if ($opf_data) {
+                    $opf = simplexml_load_string($opf_data);
+                    $opf->registerXPathNamespace('dc', 'http://purl.org/dc/elements/1.1/');
+
+                    $title = $opf->xpath('//dc:title');
+                    $creator = $opf->xpath('//dc:creator');
+
+                    $metadata['title'] = isset($title[0]) ? (string) $title[0] : '';
+                    $metadata['author'] = isset($creator[0]) ? (string) $creator[0] : '';
+                }
+            }
+
+            $zip->close();
+        }
+
+        return [
+            'file_url' => $upload_dir['baseurl'] . '/books/' . $filename,
+            'file_path' => $destination,
+            'metadata' =>$metadata
+        ];
+
     }
 
     private function convert_docx_to_epub($file_path) {
