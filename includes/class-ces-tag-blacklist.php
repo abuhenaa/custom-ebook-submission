@@ -10,7 +10,7 @@ class CES_Tag_Blacklist {
     }
 
     public function register_admin_page() {
-        add_options_page('Blacklist Tags', 'eBook Tag Blacklist', 'manage_options', 'ces_blacklist', [$this, 'render_admin_page']);
+        add_menu_page('Blacklist Tags', 'eBook Settings', 'manage_options', 'ces_blacklist', [$this, 'render_admin_page']);
     }
 
     public function render_admin_page() {
@@ -21,6 +21,7 @@ class CES_Tag_Blacklist {
         }
 
         $blacklist = get_option($this->option_key, '');
+        var_dump($blacklist); // Debugging line, remove in production
         ?>
         <div class="wrap">
             <h1>eBook Tag Blacklist</h1>

@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //define constants
 define( 'CES_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CES_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'CES_PLUGIN_VERSION', '1.0' );
 
 //Autoload classes
 spl_autoload_register( function ( $class_name ) {
@@ -29,11 +30,14 @@ spl_autoload_register( function ( $class_name ) {
 
 // Include helpers
 require_once CES_PLUGIN_DIR . 'includes/helpers.php';
+//include functions file
+require_once CES_PLUGIN_DIR . 'functions.php';
 
 //init classes
 function ces_init_plugin(){
     new CES_Form_Renderer();
     new CES_Form_Handler();
-    //new CES_Form_Blacklist();
+    new CES_Tag_Blacklist();
+    new CES_Ebook_Display();
 }
 add_action( 'plugins_loaded', 'ces_init_plugin' );
