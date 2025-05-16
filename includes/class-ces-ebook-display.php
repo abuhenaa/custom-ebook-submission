@@ -9,6 +9,7 @@ class CES_Ebook_Display {
     public function __construct() {
         add_action( 'woocommerce_after_single_product_summary', [ $this, 'display_epub_preview' ], 5 );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
+        add_action('wp_footer', [$this, 'add_purchase_overlay']);
     }
 
     /**
@@ -91,54 +92,86 @@ class CES_Ebook_Display {
                     flow: "paginated",
                     minSpreadWidth: 800
                 });
+
+                var pageCounter = 0;
+                var previewLimit = 2; // Set the limit for free preview pages
+                var previewMessageShown = false;
                 
-                // Display the book
-                <?php if ($has_access): ?>
-                    // For full access, start at the beginning
-                    rendition.display().then(function() {
-                        console.log("Book displayed successfully");
-                    }).catch(function(error) {
-                        console.error("Error displaying book:", error);
-                    });
-                <?php else: ?>
-                    // For preview, start at the first chapter in TOC
-                    book.loaded.navigation.then(function(nav) {
-                        var first = nav.toc[0];
-                        if (first) {
-                            rendition.display(first.href);
-                        } else {
-                            rendition.display()
-                        }
-                    }).catch(function(error) {
-                        console.error("Error loading navigation:", error);
-                        rendition.display().catch(function(error) {
-                            console.error("Error displaying default page after nav error:", error);
-                        });
-                    });
-                <?php endif; ?>
-                
+                // For preview, start at the first chapter in TOC
+                book.loaded.navigation.then(function(nav) {
+                    var first = nav.toc[0];
+                    if (first) {
+                        rendition.display(first.href);
+                    } else {
+                        rendition.display()
+                    }
+                });
+
+                // Track page direction for accurate counting
+                var isForward = true;
+
+                // Listen for the "relocated" event to track page changes
+                rendition.on("relocated", function(location) {
+                    // Only count new page views, not back navigation
+                    if (isForward) {
+                        pageCounter++;
+                    }
+                    
+                    // Reset the direction flag
+                    isForward = true;
+                    
+                    // Check if preview limit is reached
+                    if (pageCounter > previewLimit && !previewMessageShown) {
+                        // Show purchase overlay
+                        $("#ces-purchase-overlay").css("display", "flex");
+                        previewMessageShown = true;
+                    }
+                });
+
                 // Add event listeners for navigation
                 $("#prev-page").on("click", function() {
-                    rendition.prev();
-                });
-                
-                $("#next-page").on("click", function() {
-                    rendition.next();
-                });
-                
-                // Handle keyboard navigation
-                $(document).keydown(function(e) {
-                    if (e.keyCode == 37) { // left arrow
+                    if (pageCounter > 0) {
+                        isForward = false; // Mark that we're going backward
+                        pageCounter--; // Decrement counter on backward navigation
                         rendition.prev();
                     }
-                    if (e.keyCode == 39) { // right arrow
+                });
+
+                $("#next-page").on("click", function() {
+                    if (pageCounter < previewLimit) {
                         rendition.next();
+                    } else {
+                        // If already at limit, just show the overlay
+                        $("#ces-purchase-overlay").css("display", "flex");
+                        previewMessageShown = true;
                     }
                 });
             } catch (error) {
-                console.error("Error initializing EPUB reader:", error);
                 $("#epub-viewer").html("<p>Error loading the ebook. Please try again later.</p>");
             }
+        });
+        </script>
+        <?php
+    }
+
+    /**
+     * Add purchase overlay
+     */
+    public function add_purchase_overlay() {
+        if ( ! is_product() ) {
+            return;
+        }
+        ?>
+        <div id="ces-purchase-overlay">
+            <h2><?php esc_html_e('Unlock Full eBook', 'custom-ebook-submission'); ?></h2>
+            <p><?php esc_html_e('To unlock the full eBook, please purchase it.', 'custom-ebook-submission'); ?></p>
+            <button id="close-overlay"><?php esc_html_e('Close', 'custom-ebook-submission'); ?></button>
+        </div>
+        <script>
+        jQuery(document).ready(function($) {
+            $("#close-overlay").on("click", function() {
+                $("#ces-purchase-overlay").fadeOut();
+            });
         });
         </script>
         <?php

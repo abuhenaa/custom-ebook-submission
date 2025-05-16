@@ -33,3 +33,23 @@
     color: #666;
     margin-bottom: 10px;
 }
+
+/* purchase overlay styles */
+#ces-purchase-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    flex-direction: column;
+    display: none;
+    color: #000;
+}
+#ces-purchase-overlay h2, #ces-purchase-overlay p {
+    color: #fff;
+}

@@ -12,22 +12,34 @@ class CES_Form_Handler {
 
         check_admin_referer('ces_submit_nonce', 'ces_nonce');
 
-        //$blacklist = new CES_Tag_Blacklist();
-        // if ($blacklist->has_blacklisted_words($_POST['tags'] ?? '')) {
-        //     wp_die(__('Blacklisted word detected. Please revise your tags.', 'ces'));
-        // }
-
+        $blacklist = new CES_Tag_Blacklist();
+        if ($blacklist->has_blacklisted_words($_POST['tags'] ?? '')) {
+            wp_die(__('Blacklisted word detected. Please revise your tags.', 'ces'));
+        }
+        
         // Handle product creation and metadata
         $product_id = wp_insert_post([
             'post_title'   => sanitize_text_field($_POST['title']),
             'post_status'  => 'pending',
             'post_type'    => 'product',
-            'post_author'  => get_current_user_id(),
+            'post_author'  => get_current_user_id()
         ]);
+
+        // Now handle the category (assuming it's a valid category ID)
+        if (!empty($_POST['main_category'])) {
+            wp_set_object_terms($product_id, (int)$_POST['main_category'], 'product_cat');
+        }
+
+        // Handle tags
+        if (!empty($_POST['tags'])) {
+            $tags = array_map('sanitize_text_field', explode(',', $_POST['tags']));
+            wp_set_object_terms($product_id, $tags, 'product_tag');
+        }
 
         // Save additional meta
         update_post_meta($product_id, '_ces_external_link', esc_url_raw($_POST['external_link'] ?? ''));
         update_post_meta($product_id, '_ces_main_category', sanitize_text_field($_POST['main_category'] ?? ''));
+        update_post_meta($product_id, '_category_suggestion', sanitize_text_field($_POST['category_suggestion'] ?? ''));
 
         $regular_price = wc_clean($_POST['price']);
         $sale_price = !empty($_POST['sale_price']) ? wc_clean($_POST['sale_price']) : '';

@@ -20,6 +20,11 @@ class CES_Form_Renderer {
 
     public function render_form() {
 
+        // Check if user is logged in
+        if (!is_user_logged_in()) {
+            return '<p>' . __('You must be logged in to submit an eBook.', 'ces') . '</p>';
+        }
+
         ob_start();
         include CES_PLUGIN_DIR . 'templates/ebook-submission-form.php';
         return ob_get_clean();

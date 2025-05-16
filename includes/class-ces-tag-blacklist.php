@@ -35,7 +35,7 @@ class CES_Tag_Blacklist {
     }
 
     public function has_blacklisted_words($tags) {
-        $blacklist = explode("\n", get_option($this->option_key, ''));
+        $blacklist = explode(",", get_option($this->option_key, ''));
         $tags = explode(',', $tags);
         foreach ($tags as $tag) {
             if (in_array(trim(strtolower($tag)), array_map('strtolower', array_map('trim', $blacklist)))) {
