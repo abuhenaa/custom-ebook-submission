@@ -1,54 +1,146 @@
-.ces-form {
-    max-width: 800px;
-    margin: 0 auto;
-}
+/**
+ * CES Form CSS Styles
+ * Styling for the eBook submission form
+ */
 
+/* Form Grid Layout */
 .ces-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5em;
-}
-
-.ces-field {
-    display: flex;
-    flex-direction: column;
+    grid-gap: 20px;
 }
 
 .ces-field.full {
-    grid-column: span 2;
+    grid-column: 1 / span 2;
 }
 
+/* Form Fields */
 .ces-field label {
-    font-weight: 600;
+    display: block;
     margin-bottom: 5px;
+    font-weight: 600;
 }
 
-.ces-field input,
+.ces-field input[type="text"],
+.ces-field input[type="number"],
+.ces-field input[type="url"],
 .ces-field select {
-    padding: 0.5em;
-    font-size: 1em;
-    border: 1px solid #ccc;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
     border-radius: 4px;
 }
 
+/* Cover Image Preview */
+.image-preview {
+    margin-top: 10px;
+    max-width: 150px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Comic Images Upload */
+.comic-image-instructions {
+    margin: 10px 0;
+    font-style: italic;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.comic-images-sortable {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-gap: 15px;
+    margin-top: 15px;
+}
+
+.comic-image-item {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    cursor: move;
+    position: relative;
+}
+
+.comic-image-preview {
+    margin-bottom: 8px;
+}
+
+.comic-image-preview img {
+    width: 100%;
+    height: auto;
+    border-radius: 3px;
+}
+
+.comic-image-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+}
+
+.comic-image-number {
+    background: #333;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8em;
+}
+
+.comic-image-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100px;
+}
+
+.comic-image-placeholder {
+    border: 2px dashed #aaa;
+    border-radius: 4px;
+    height: 180px;
+    background-color: #f5f5f5;
+}
+
+/* Submit Button */
 .ces-submit {
-    margin-top: 1.5em;
-    text-align: right;
-    grid-column: span 2;
+    margin-top: 30px;
+    grid-column: 1 / span 2;
+    text-align: center;
 }
 
 .ces-submit input[type="submit"] {
-    padding: 0.6em 1.2em;
-    background: #0073aa;
-    color: #fff;
+    padding: 10px 25px;
+    background-color: #0073aa;
+    color: white;
     border: none;
     border-radius: 4px;
-    font-weight: 600;
     cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
 }
 
 .ces-submit input[type="submit"]:hover {
-    background: #005f8d;
+    background-color: #005177;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .ces-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ces-field.full {
+        grid-column: 1;
+    }
 }
 
 .ces-success {

@@ -11,7 +11,147 @@ class CES_File_Handler{
         $this->product_id = $product_id;
     }
 
-    public function handle_upload( $files ) {
+    /**
+     * Handle uploads from the enhanced form with multiple file fields
+     * 
+     * @param array $files The $_FILES array
+     * @param string $file_type The selected file type from the form
+     * @return array|null Processed file data or null on failure
+     */
+    public function handle_upload( $files, $file_type = '' ) {
+        // Determine which file field to process based on file_type
+        $file_key = $this->get_file_key_from_type($file_type);
+        
+        // Check if we have a valid file to process
+        if (!isset($files[$file_key]) || 
+            ($file_key !== 'comic_images' && $files[$file_key]['error'] !== UPLOAD_ERR_OK)) {
+            return null;
+        }
+
+        $processed = null;
+        // Process based on file type
+        switch ($file_type) {
+            case 'epub':
+                $processed = $this->handle_epub_upload($files[$file_key]);
+                break;
+            case 'docx':
+                return $this->handle_docx_upload($files[$file_key]);
+            case 'cbz':
+                return $this->handle_cbz_upload($files[$file_key]);
+            case 'comic_images':
+                return $this->handle_comic_images_upload($files[$file_key], $files);
+            default:
+                // For backwards compatibility, try to detect file type from extension
+                if (!empty($files['ebook_file']) && $files['ebook_file']['error'] === UPLOAD_ERR_OK) {
+                    return $this->legacy_handle_upload($files);
+                }
+        }
+
+        //update ebook file URL in product meta
+        if (isset($processed['file_url'])) {
+            update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($processed['file_url']));
+            update_post_meta($this->product_id, '_ces_ebook_file_path', $processed['file_path']);
+            update_post_meta($this->product_id, '_ces_ebook_title', sanitize_text_field($processed['metadata']['title'] ?? ''));
+            update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($processed['metadata']['author'] ?? ''));
+        }
+
+    }
+
+    /**
+     * Maps file type selection to the corresponding form field name
+     */
+    private function get_file_key_from_type($file_type) {
+        switch ($file_type) {
+            case 'epub':
+                return 'epub_file';
+            case 'docx':
+                return 'docx_file';
+            case 'cbz':
+                return 'cbz_file';
+            case 'comic_images':
+                return 'comic_images';
+            default:
+                return 'ebook_file'; // Legacy field name
+        }
+    }
+
+    /**
+     * Handle EPUB file upload
+     */
+    private function handle_epub_upload($file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        
+        $uploaded = wp_handle_upload($file, ['test_form' => false]);
+        
+        if (isset($uploaded['url'])) {
+            $processed = $this->process_epub($uploaded['file']);
+        }
+        return $processed;
+        
+    }
+
+    /**
+     * Handle DOCX file upload
+     */
+    private function handle_docx_upload($file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        
+        $uploaded = wp_handle_upload($file, ['test_form' => false]);
+        
+        if (isset($uploaded['url'])) {
+            return $this->convert_docx_to_epub($uploaded['file']);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Handle CBZ file upload
+     */
+    private function handle_cbz_upload($file) {
+        if (!function_exists('wp_handle_upload')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        
+        $uploaded = wp_handle_upload($file, ['test_form' => false]);
+        
+        if (isset($uploaded['url'])) {
+            return $this->process_cbz($uploaded['file']);
+        }
+        
+        return null;
+    }
+
+    /**
+     * Handle multiple comic images upload
+     */
+    private function handle_comic_images_upload($files, $all_files) {
+        // Check if we have at least one image
+        if (empty($files['name'][0])) {
+            return null;
+        }
+        
+        // Get image order if provided
+        $image_order = isset($_POST['comic_images_order']) ? json_decode(stripslashes($_POST['comic_images_order']), true) : null;
+        
+        // Get product title for filename
+        $product_title = get_the_title($this->product_id);
+        if (empty($product_title)) {
+            $product_title = 'comic-' . $this->product_id;
+        }
+        
+        // Create CBZ from uploaded images
+        return $this->create_cbz_from_images($files, $product_title, $image_order);
+    }
+
+    /**
+     * Legacy method to maintain backward compatibility
+     */
+    private function legacy_handle_upload( $files ) {
         if ( !isset( $files[ 'ebook_file' ] ) || $files[ 'ebook_file' ][ 'error' ] !== UPLOAD_ERR_OK ) {
             return;
         }
@@ -47,12 +187,147 @@ class CES_File_Handler{
                     break;
             }
 
-            update_post_meta( $this->product_id, '_ces_ebook_file', esc_url_raw( $processed[ 'file_url' ] ) );
-            //title meta
-            update_post_meta( $this->product_id, '_ces_ebook_title', sanitize_text_field( $processed[ 'metadata' ][ 'title' ] ?? '' ) );
-            //author meta
-            update_post_meta( $this->product_id, '_ces_ebook_author', sanitize_text_field( $processed[ 'metadata' ][ 'author' ] ?? '' ) );
+            if ($processed) {
+                update_post_meta( $this->product_id, '_ces_ebook_file', esc_url_raw( $processed[ 'file_url' ] ) );
+                // title meta
+                update_post_meta( $this->product_id, '_ces_ebook_title', sanitize_text_field( $processed[ 'metadata' ][ 'title' ] ?? '' ) );
+                // author meta
+                update_post_meta( $this->product_id, '_ces_ebook_author', sanitize_text_field( $processed[ 'metadata' ][ 'author' ] ?? '' ) );
+                
+                return $processed;
+            }
         }
+        
+        return null;
+    }
+
+    /**
+     * Create a CBZ file from multiple uploaded images
+     */
+    private function create_cbz_from_images($files, $title, $image_order = null) {
+        // Set up temporary directory for images
+        $upload_dir = wp_upload_dir();
+        $temp_dir = $upload_dir['basedir'] . '/temp-cbz-' . uniqid();
+        
+        // Create temp directory if it doesn't exist
+        if (!file_exists($temp_dir)) {
+            wp_mkdir_p($temp_dir);
+        }
+        
+        // Create books directory if it doesn't exist
+        $books_dir = $upload_dir['basedir'] . '/books';
+        if (!file_exists($books_dir)) {
+            wp_mkdir_p($books_dir);
+        }
+        
+        // Prepare file names array for ordering
+        $image_files = [];
+        $file_count = count($files['name']);
+        
+        // Move uploaded files to temp directory
+        for ($i = 0; $i < $file_count; $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                $tmp_name = $files['tmp_name'][$i];
+                $name = sanitize_file_name($files['name'][$i]);
+                $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                
+                // Only process image files
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $dest_filename = sprintf('%03d.%s', $i + 1, $ext);
+                    $dest_path = $temp_dir . '/' . $dest_filename;
+                    
+                    if (move_uploaded_file($tmp_name, $dest_path)) {
+                        $image_files[$i] = [
+                            'original_name' => $name,
+                            'temp_path' => $dest_path,
+                            'index' => $i
+                        ];
+                    }
+                }
+            }
+        }
+        
+        // If we have an image order array, reorder the files
+        if ($image_order && is_array($image_order)) {
+            // Create a new ordered array
+            $ordered_files = [];
+            foreach ($image_order as $index => $original_index) {
+                if (isset($image_files[$original_index])) {
+                    $ordered_files[] = $image_files[$original_index];
+                }
+            }
+            
+            // If we have ordered files, replace the original array
+            if (!empty($ordered_files)) {
+                $image_files = $ordered_files;
+            }
+        }
+        
+        // Rename files sequentially based on their new order
+        foreach ($image_files as $index => $file_info) {
+            $ext = strtolower(pathinfo($file_info['temp_path'], PATHINFO_EXTENSION));
+            $new_filename = sprintf('%03d.%s', $index + 1, $ext);
+            $new_path = $temp_dir . '/' . $new_filename;
+            
+            // Rename if the filename has changed
+            if ($file_info['temp_path'] !== $new_path) {
+                rename($file_info['temp_path'], $new_path);
+                $image_files[$index]['temp_path'] = $new_path;
+            }
+        }
+        
+        // Create sanitized filename for the CBZ
+        $sanitized_title = sanitize_title($title);
+        $cbz_filename = $sanitized_title . '.cbz';
+        $cbz_path = $books_dir . '/' . $cbz_filename;
+        
+        // Create the ZIP (CBZ) file
+        $zip = new ZipArchive();
+        if ($zip->open($cbz_path, ZipArchive::CREATE) !== true) {
+            return null;
+        }
+        
+        // Add all images to the ZIP
+        foreach (glob($temp_dir . '/*') as $file) {
+            $filename = basename($file);
+            $zip->addFile($file, $filename);
+        }
+        
+        $zip->close();
+        
+        // Clean up the temp directory
+        foreach (glob($temp_dir . '/*') as $file) {
+            unlink($file);
+        }
+        rmdir($temp_dir);
+        
+        // Extract basic metadata (first image as cover, etc.)
+        $metadata = [
+            'title' => $title,
+            'author' => get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '',
+        ];
+        
+        // Save the CBZ file URL to product meta
+        $cbz_url = $upload_dir['baseurl'] . '/books/' . $cbz_filename;
+        update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($cbz_url));
+        update_post_meta($this->product_id, '_ces_ebook_file_path', $cbz_path);
+        update_post_meta($this->product_id, '_ces_ebook_title', sanitize_text_field($metadata['title']));
+        update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($metadata['author']));
+        
+        // Also save the image count and original image information
+        update_post_meta($this->product_id, '_ces_comic_image_count', count($image_files));
+        
+        $original_names = [];
+        foreach ($image_files as $file) {
+            $original_names[] = $file['original_name'];
+        }
+        update_post_meta($this->product_id, '_ces_comic_original_filenames', $original_names);
+        
+        return [
+            'file_url' => $cbz_url,
+            'file_path' => $cbz_path,
+            'metadata' => $metadata,
+        ];
     }
 
     private function process_epub( $file_path )
@@ -68,7 +343,7 @@ class CES_File_Handler{
 
         // Move the file to /uploads/books/
         $filename    = basename( $file_path );
-        $destination = $books_dir . '/' . $filename;
+        $destination = $books_dir . '/' . $filename;        
 
         if ( !rename( $file_path, $destination ) ) {
             return new WP_Error( 'epub_move_failed', 'Failed to move EPUB to books folder.' );
@@ -107,29 +382,269 @@ class CES_File_Handler{
             'file_path' => $destination,
             'metadata'  => $metadata,
          ];
-
     }
 
     private function convert_docx_to_epub( $file_path )
     {
-        $epub_output = str_replace( '.docx', '.epub', $file_path );
-        $cmd         = "pandoc " . escapeshellarg( $file_path ) . " -o " . escapeshellarg( $epub_output );
+        $upload_dir = wp_upload_dir();
+        $books_dir  = $upload_dir[ 'basedir' ] . '/books';
+
+        // Create books folder if not exists
+        if ( !file_exists( $books_dir ) ) {
+            wp_mkdir_p( $books_dir );
+        }
+
+        $filename = basename($file_path);
+        $epub_filename = str_replace( '.docx', '.epub', $filename );
+        $epub_output = $books_dir . '/' . $epub_filename;
+        
+        // Convert DOCX to EPUB using pandoc
+        $cmd = "pandoc " . escapeshellarg( $file_path ) . " -o " . escapeshellarg( $epub_output );
         shell_exec( $cmd );
 
+        // Check if conversion succeeded
         if ( file_exists( $epub_output ) ) {
-            $epub_url = str_replace( ABSPATH, site_url( '/' ), $epub_output );
-            update_post_meta( $this->product_id, '_ces_converted_epub', esc_url_raw( $epub_url ) );
+            // Extract basic metadata
+            $title = get_the_title($this->product_id) ?: pathinfo($filename, PATHINFO_FILENAME);
+            $author = get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '';
+            
+            $metadata = [
+                'title' => $title,
+                'author' => $author
+            ];
+            
+            // Save file metadata
+            update_post_meta( $this->product_id, '_ces_ebook_file', esc_url_raw( $upload_dir['baseurl'] . '/books/' . $epub_filename ) );
+            update_post_meta( $this->product_id, '_ces_ebook_file_path', $epub_output );
+            update_post_meta( $this->product_id, '_ces_ebook_title', sanitize_text_field( $metadata['title'] ) );
+            update_post_meta( $this->product_id, '_ces_ebook_author', sanitize_text_field( $metadata['author'] ) );
+            
+            return [
+                'file_url' => $upload_dir['baseurl'] . '/books/' . $epub_filename,
+                'file_path' => $epub_output,
+                'metadata' => $metadata
+            ];
         }
+        
+        return null;
     }
 
     private function process_cbz( $file_path )
     {
-        // Extract cover image and 1 sample page for preview (optional enhancement)
+        $upload_dir = wp_upload_dir();
+        $books_dir  = $upload_dir[ 'basedir' ] . '/books';
+
+        // Create books folder if not exists
+        if ( !file_exists( $books_dir ) ) {
+            wp_mkdir_p( $books_dir );
+        }
+
+        // Move the file to /uploads/books/
+        $filename    = basename( $file_path );
+        $destination = $books_dir . '/' . $filename;
+
+        if ( !rename( $file_path, $destination ) ) {
+            return new WP_Error( 'cbz_move_failed', 'Failed to move CBZ to books folder.' );
+        }
+
+        // Extract cover image for preview if possible
+        $temp_extract_dir = $upload_dir['basedir'] . '/temp-cbz-extract-' . uniqid();
+        if (!file_exists($temp_extract_dir)) {
+            wp_mkdir_p($temp_extract_dir);
+        }
+
+        $cover_url = '';
+        $zip = new ZipArchive();
+        if ($zip->open($destination) === true) {
+            // Get the first image as cover
+            $cover_found = false;
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $filename = $zip->getNameIndex($i);
+                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+                
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                    $cover_data = $zip->getFromIndex($i);
+                    $cover_path = $temp_extract_dir . '/cover.' . $ext;
+                    file_put_contents($cover_path, $cover_data);
+                    
+                    // Move cover to uploads directory
+                    $cover_dest = $upload_dir['basedir'] . '/cbz-covers/' . basename($destination, '.cbz') . '-cover.' . $ext;
+                    
+                    // Create cover directory if it doesn't exist
+                    if (!file_exists(dirname($cover_dest))) {
+                        wp_mkdir_p(dirname($cover_dest));
+                    }
+                    
+                    if (rename($cover_path, $cover_dest)) {
+                        $cover_url = $upload_dir['baseurl'] . '/cbz-covers/' . basename($destination, '.cbz') . '-cover.' . $ext;
+                        update_post_meta($this->product_id, '_ces_ebook_cover', esc_url_raw($cover_url));
+                    }
+                    
+                    $cover_found = true;
+                    break;
+                }
+            }
+            
+            $zip->close();
+        }
+        
+        // Clean up extraction directory
+        if (file_exists($temp_extract_dir)) {
+            array_map('unlink', glob($temp_extract_dir . '/*'));
+            rmdir($temp_extract_dir);
+        }
+
+        // Basic metadata
+        $title = get_the_title($this->product_id) ?: pathinfo($filename, PATHINFO_FILENAME);
+        $author = get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '';
+        
+        $metadata = [
+            'title' => $title,
+            'author' => $author
+        ];
+
+        // Save file metadata
+        update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($upload_dir['baseurl'] . '/books/' . basename($destination)));
+        update_post_meta($this->product_id, '_ces_ebook_file_path', $destination);
+        update_post_meta($this->product_id, '_ces_ebook_title', sanitize_text_field($metadata['title']));
+        update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($metadata['author']));
+
+        return [
+            'file_url' => $upload_dir['baseurl'] . '/books/' . basename($destination),
+            'file_path' => $destination,
+            'metadata' => $metadata,
+            'cover_url' => $cover_url
+        ];
     }
 
     private function process_images_or_zip( $file_path, $ext )
     {
-        // If images were uploaded, create CBZ archive
-        // Use ZipArchive to zip images into a .cbz file and store URL
+        // For backwards compatibility with the old method
+        if ($ext === 'zip') {
+            // Handle ZIP file - extract images and create CBZ
+            $upload_dir = wp_upload_dir();
+            $temp_dir = $upload_dir['basedir'] . '/temp-zip-' . uniqid();
+            
+            if (!file_exists($temp_dir)) {
+                wp_mkdir_p($temp_dir);
+            }
+            
+            // Extract ZIP contents
+            $zip = new ZipArchive();
+            if ($zip->open($file_path) === true) {
+                $zip->extractTo($temp_dir);
+                $zip->close();
+                
+                // Get all images from the extracted folder
+                $images = [];
+                foreach (glob($temp_dir . '/*') as $file) {
+                    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+                        $images[] = $file;
+                    }
+                }
+                
+                // Sort images by name
+                sort($images);
+                
+                if (!empty($images)) {
+                    // Create a CBZ file
+                    $title = get_the_title($this->product_id) ?: 'comic-' . $this->product_id;
+                    $cbz_result = $this->create_cbz_from_extracted_images($images, $title);
+                    
+                    // Clean up
+                    foreach (glob($temp_dir . '/*') as $file) {
+                        unlink($file);
+                    }
+                    rmdir($temp_dir);
+                    
+                    return $cbz_result;
+                }
+                
+                // Clean up if no images found
+                foreach (glob($temp_dir . '/*') as $file) {
+                    unlink($file);
+                }
+                rmdir($temp_dir);
+            }
+        } else if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
+            // Handle single image file - legacy case, should be handled by new comic_images field
+            // Just move the image to the uploads folder
+            $upload_dir = wp_upload_dir();
+            $dest_path = $upload_dir['basedir'] . '/books/' . basename($file_path);
+            
+            if (!file_exists(dirname($dest_path))) {
+                wp_mkdir_p(dirname($dest_path));
+            }
+            
+            if (rename($file_path, $dest_path)) {
+                $title = get_the_title($this->product_id) ?: pathinfo(basename($file_path), PATHINFO_FILENAME);
+                $author = get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '';
+                
+                $metadata = [
+                    'title' => $title,
+                    'author' => $author
+                ];
+                
+                return [
+                    'file_url' => $upload_dir['baseurl'] . '/books/' . basename($file_path),
+                    'file_path' => $dest_path,
+                    'metadata' => $metadata
+                ];
+            }
+        }
+        
+        return null;
+    }
+
+    /**
+     * Helper method to create CBZ from extracted images
+     */
+    private function create_cbz_from_extracted_images($images, $title) {
+        $upload_dir = wp_upload_dir();
+        $books_dir = $upload_dir['basedir'] . '/books';
+        
+        // Create books directory if needed
+        if (!file_exists($books_dir)) {
+            wp_mkdir_p($books_dir);
+        }
+        
+        // Create the CBZ file
+        $sanitized_title = sanitize_title($title);
+        $cbz_filename = $sanitized_title . '.cbz';
+        $cbz_path = $books_dir . '/' . $cbz_filename;
+        
+        $zip = new ZipArchive();
+        if ($zip->open($cbz_path, ZipArchive::CREATE) !== true) {
+            return null;
+        }
+        
+        // Add images to the zip with sequential numbering
+        foreach ($images as $index => $image_path) {
+            $ext = strtolower(pathinfo($image_path, PATHINFO_EXTENSION));
+            $new_name = sprintf('%03d.%s', $index + 1, $ext);
+            
+            $zip->addFile($image_path, $new_name);
+        }
+        
+        $zip->close();
+        
+        // Basic metadata
+        $metadata = [
+            'title' => $title,
+            'author' => get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: ''
+        ];
+        
+        // Save file metadata
+        update_post_meta($this->product_id, '_ces_ebook_file', esc_url_raw($upload_dir['baseurl'] . '/books/' . $cbz_filename));
+        update_post_meta($this->product_id, '_ces_ebook_file_path', $cbz_path);
+        update_post_meta($this->product_id, '_ces_ebook_title', sanitize_text_field($metadata['title']));
+        update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($metadata['author']));
+        
+        return [
+            'file_url' => $upload_dir['baseurl'] . '/books/' . $cbz_filename,
+            'file_path' => $cbz_path,
+            'metadata' => $metadata
+        ];
     }
 }

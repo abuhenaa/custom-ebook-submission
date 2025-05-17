@@ -54,9 +54,33 @@ class CES_Form_Handler {
             update_post_meta($product_id, '_price', $regular_price);
         }
 
+        //cover image update
+        if (!empty($_FILES['cover_image']['name'])) {
+            //include WordPress file handling functions
+            if (!function_exists('wp_handle_upload')) {
+                require_once(ABSPATH . 'wp-admin/includes/file.php');
+            }
+            $cover_image = wp_handle_upload($_FILES['cover_image'], ['test_form' => false]);
+            if (isset($cover_image['file'])) {
+                $attachment_id = wp_insert_attachment([
+                    'post_title' => sanitize_file_name($_FILES['cover_image']['name']),
+                    'post_mime_type' => $cover_image['type'],
+                    'post_content' => '',
+                    'post_status' => 'inherit'
+                ], $cover_image['file'], $product_id);
+
+                // Generate attachment metadata and update the database record
+                require_once(ABSPATH . 'wp-admin/includes/image.php');
+                $attach_data = wp_generate_attachment_metadata($attachment_id, $cover_image['file']);
+                wp_update_attachment_metadata($attachment_id, $attach_data);
+                set_post_thumbnail($product_id, $attachment_id);
+            }
+        }
+
         // File Handling
+        $file_type = sanitize_text_field($_POST['file_type'] ?? '');
         $file_handler = new CES_File_Handler($product_id);
-        $file_handler->handle_upload($_FILES);
+        $file_handler->handle_upload($_FILES, $file_type);
 
         wp_redirect(add_query_arg('submitted', 'true', get_permalink()));
         exit;

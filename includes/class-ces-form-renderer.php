@@ -16,6 +16,8 @@ class CES_Form_Renderer {
     public function enqueue_assets() {
         wp_enqueue_style('ces-style', CES_PLUGIN_URL . 'assets/css/ces-style.css');
         wp_enqueue_script('ces-form', CES_PLUGIN_URL . 'assets/js/ces-scripts.js', ['jquery'], null, true);
+        wp_enqueue_script('jquery-ui-sortable');
+        wp_enqueue_script('ces-form-script', CES_PLUGIN_URL . '/assets/js/ces-form.js', array('jquery', 'jquery-ui-sortable'), '1.0.0', true);
     }
 
     public function render_form() {
