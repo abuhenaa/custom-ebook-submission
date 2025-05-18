@@ -21,7 +21,6 @@ class CES_Tag_Blacklist {
         }
 
         $blacklist = get_option($this->option_key, '');
-        var_dump($blacklist); // Debugging line, remove in production
         ?>
         <div class="wrap">
             <h1>eBook Tag Blacklist</h1>
@@ -35,13 +34,19 @@ class CES_Tag_Blacklist {
     }
 
     public function has_blacklisted_words($tags) {
-        $blacklist = explode(",", get_option($this->option_key, ''));
-        $tags = explode(',', $tags);
+        $blacklist = get_option($this->option_key, '');
+        if (empty($blacklist)) {
+            return false; // No blacklist set
+        }
+        $blacklist = array_map('trim', explode(",", strtolower($blacklist)));
+        $tags      = array_map('trim', explode(",", strtolower($tags)));
+
         foreach ($tags as $tag) {
-            if (in_array(trim(strtolower($tag)), array_map('strtolower', array_map('trim', $blacklist)))) {
+            if (in_array($tag, $blacklist)) {
                 return true;
             }
         }
         return false;
+
     }
 }

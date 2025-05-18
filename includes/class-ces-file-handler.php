@@ -447,53 +447,6 @@ class CES_File_Handler{
             return new WP_Error( 'cbz_move_failed', 'Failed to move CBZ to books folder.' );
         }
 
-        // Extract cover image for preview if possible
-        $temp_extract_dir = $upload_dir['basedir'] . '/temp-cbz-extract-' . uniqid();
-        if (!file_exists($temp_extract_dir)) {
-            wp_mkdir_p($temp_extract_dir);
-        }
-
-        $cover_url = '';
-        $zip = new ZipArchive();
-        if ($zip->open($destination) === true) {
-            // Get the first image as cover
-            $cover_found = false;
-            for ($i = 0; $i < $zip->numFiles; $i++) {
-                $filename = $zip->getNameIndex($i);
-                $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-                
-                if (in_array($ext, ['jpg', 'jpeg', 'png', 'gif'])) {
-                    $cover_data = $zip->getFromIndex($i);
-                    $cover_path = $temp_extract_dir . '/cover.' . $ext;
-                    file_put_contents($cover_path, $cover_data);
-                    
-                    // Move cover to uploads directory
-                    $cover_dest = $upload_dir['basedir'] . '/cbz-covers/' . basename($destination, '.cbz') . '-cover.' . $ext;
-                    
-                    // Create cover directory if it doesn't exist
-                    if (!file_exists(dirname($cover_dest))) {
-                        wp_mkdir_p(dirname($cover_dest));
-                    }
-                    
-                    if (rename($cover_path, $cover_dest)) {
-                        $cover_url = $upload_dir['baseurl'] . '/cbz-covers/' . basename($destination, '.cbz') . '-cover.' . $ext;
-                        update_post_meta($this->product_id, '_ces_ebook_cover', esc_url_raw($cover_url));
-                    }
-                    
-                    $cover_found = true;
-                    break;
-                }
-            }
-            
-            $zip->close();
-        }
-        
-        // Clean up extraction directory
-        if (file_exists($temp_extract_dir)) {
-            array_map('unlink', glob($temp_extract_dir . '/*'));
-            rmdir($temp_extract_dir);
-        }
-
         // Basic metadata
         $title = get_the_title($this->product_id) ?: pathinfo($filename, PATHINFO_FILENAME);
         $author = get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '';
@@ -513,7 +466,6 @@ class CES_File_Handler{
             'file_url' => $upload_dir['baseurl'] . '/books/' . basename($destination),
             'file_path' => $destination,
             'metadata' => $metadata,
-            'cover_url' => $cover_url
         ];
     }
 

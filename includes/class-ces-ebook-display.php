@@ -59,10 +59,9 @@ class CES_Ebook_Display {
         global $post;
         $product_id = $post->ID;
         $epub_url = get_post_meta($product_id, '_ces_ebook_file', true);
-        var_dump($epub_url); // Debugging line to check the URL
+        //var_dump($epub_url); // Debugging line to check the URL
         
-        if (!$epub_url || pathinfo($epub_url, PATHINFO_EXTENSION) !== 'epub') return;        
-      
+        if ($epub_url && pathinfo($epub_url, PATHINFO_EXTENSION) == 'epub') {
         $has_access = false; //$this->user_has_purchased($product_id); disabled for testing
         ?>
         <div id="epub-preview-container" style="margin-top: 40px;">
@@ -153,6 +152,13 @@ class CES_Ebook_Display {
         });
         </script>
         <?php
+        } else {
+            //CBZ preview
+            $cbz_file_path = get_post_meta($product_id, '_ces_ebook_file_path', true);
+            //var_dump($cbz_file_path); // Debugging line to check the URL
+            echo ces_display_cbz_preview_pages($cbz_file_path, [0, 2]);
+           
+        }
     }
 
     /**
@@ -164,9 +170,9 @@ class CES_Ebook_Display {
         }
         ?>
         <div id="ces-purchase-overlay">
-            <h2><?php esc_html_e('Unlock Full eBook', 'custom-ebook-submission'); ?></h2>
-            <p><?php esc_html_e('To unlock the full eBook, please purchase it.', 'custom-ebook-submission'); ?></p>
-            <button id="close-overlay"><?php esc_html_e('Close', 'custom-ebook-submission'); ?></button>
+            <h2><?php esc_html_e('Unlock Full eBook', 'ces'); ?></h2>
+            <p><?php esc_html_e('To unlock the full eBook, please purchase it.', 'ces'); ?></p>
+            <button id="close-overlay"><?php esc_html_e('Close', 'ces'); ?></button>
         </div>
         <script>
         jQuery(document).ready(function($) {

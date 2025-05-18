@@ -19,14 +19,41 @@
             <input type="text" name="series" id="ces-series" />
         </div>
         <div class="ces-field">
+            <label for="ces-publisher"><?php _e('Publisher (optional)', 'textdomain'); ?>:</label>
+            <input type="text" name="publisher" id="ces-publisher" />
+        </div>
+
+        <!-- Author selection -->
+        <div class="ces-field">
+            <label for="ces-author"><?php _e('Author', 'textdomain'); ?>:</label>
+            <select name="author" id="ces-author" required>
+                <option value=""><?php _e('Select Author', 'textdomain'); ?></option>                
+                <option value="new_author"><?php _e('Add New Author', 'textdomain'); ?></option>
+                
+                <?php foreach (ces_get_authors() as $author): ?>
+                    <option value="<?= esc_attr($author->term_id); ?>"><?= esc_html($author->name); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <span class="author-notice"><?php echo esc_html__( 'If not found your author select Add new author','ces'); ?></span>
+        </div>
+
+        <!-- Author name input -->
+        <div class="ces-field" id="new-author-field" style="display:none;">
+            <label for="ces-new-author"><?php _e('New Author Name', 'ces'); ?>:</label>
+            <input type="text" name="new_author" id="ces-new-author" />
+            <span class="author-notice"><?php echo esc_html__( 'Please enter the author name','ces'); ?></span>
+        </div>
+                
+        <!-- Cover image upload -->
+        <div class="ces-field">
             <label for="ces-cover-image"><?php _e('Cover Image', 'textdomain'); ?>:</label>
-            <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" />
+            <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" required />
             <div id="cover-image-preview" class="image-preview"></div>
         </div>
 
         <div class="ces-field">
             <label for="ces-main-category"><?php _e('Main Category', 'textdomain'); ?>:</label>
-            <select name="main_category" id="ces-main-category">
+            <select name="main_category" id="ces-main-category" required>
                 <?php foreach (ces_get_main_categories() as $cat): ?>
                     <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
                 <?php endforeach; ?>
@@ -41,11 +68,13 @@
         <div class="ces-field">
             <label for="ces-tags"><?php _e('Tags (comma-separated)', 'textdomain'); ?>:</label>
             <input type="text" name="tags" id="ces-tags" />
+            <span class="tag-notice"> </span>
         </div>
 
         <div class="ces-field">
             <label for="ces-price"><?php _e('Price Without VAT', 'textdomain'); ?>:</label>
-            <input type="number" name="price" step="0.01" id="ces-price" />
+            <input type="number" name="price" step="0.1" id="ces-price" />
+            <span class="price-notice"></span>
         </div>
 
         <div class="ces-field">
@@ -93,7 +122,7 @@
     </div>
 
     <div class="ces-submit">
-        <input type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'textdomain'); ?>" />
+        <input id="submitBtn" type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'textdomain'); ?>" />
     </div>
 </form>
 

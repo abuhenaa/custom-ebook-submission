@@ -1,4 +1,4 @@
-#epub-preview-container {
+#epub-preview-container, .cbz-preview-container {
     background: #fafafa;
     padding: 20px;
     border-radius: 10px;
@@ -52,4 +52,69 @@
 }
 #ces-purchase-overlay h2, #ces-purchase-overlay p {
     color: #fff;
+}
+
+/* CBZ Preview Container Styles */
+.cbz-preview-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-gap: 15px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 5px;
+    max-width: 100%;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.cbz-page-wrapper {
+    position: relative;
+    margin: 0;
+}
+
+.cbz-page-link {
+    display: block;
+    text-decoration: none;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.cbz-page-link:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.cbz-page {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 150%; /* Aspect ratio for comic pages (typically taller than wide) */
+    overflow: hidden;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.cbz-page img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.cbz-page-link:hover img {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .cbz-preview-container {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        grid-gap: 10px;
+    }
 }

@@ -44,15 +44,52 @@
             }
         });
 
-        // Handle price input validation and VAT calculation
-        $('.ces-field #ces-price').on('change', function() {
-            const price = parseFloat($(this).val());
-            if (isNaN(price) || price < 0) {
-                $(this).val(0);
-                alert('Please enter a valid price.');
+        $('#submitBtn').on('click', function (e) {          
+
+            const input = $('#ces-tags').val();
+            const tags = input.split(',').map(tag => $.trim(tag)).filter(tag => tag.length > 0);
+
+            if (tags.length > 20) {
+            $('.tag-notice').text('You can enter a maximum of 20 tags.').css('color', 'red');
+             e.preventDefault(); // prevent form submission if inside a form
+            }else{
+                //clear
+                $('.tag-notice').text('');
             }
-            $('#ces-vat-price').val(price + (price * 5.5 / 100));
         });
+        // Handle price input validation and VAT calculation
+        $('.ces-field #ces-price').on('change', function () {
+            let inputVal = $(this).val();
+
+            // Check if the value is a valid number with max 2 decimal places
+            if (!/^\d+(\.\d{1,2})?$/.test(inputVal)) {
+                 $('.price-notice').text('Please enter a valid price with no more than 2 decimal places.');
+                $(this).val(inputVal.toFixed(2));
+                $('#ces-vat-price').val('0.00');
+                return;
+            }else{
+                //clear
+                $('.price-notice').text('');
+            }
+
+            const price = parseFloat(inputVal);
+            if (isNaN(price) || price < 0) {
+                $(this).val('0.00');
+                $('.price-notice').text('Please enter a valid positive price.');
+                $('#ces-vat-price').val('0.00');
+                return;
+            }else{
+                //clear
+                $('.price-notice').text('');
+            }
+
+            // Optionally format the input to 2 decimal places
+            $(this).val(price.toFixed(2));
+
+            const vatPrice = price + (price * 5.5 / 100);
+            $('#ces-vat-price').val(vatPrice.toFixed(2));
+        });
+
 
         // Handle comic images upload and preview
         $('#ces-comic-images').on('change', function() {
@@ -122,5 +159,16 @@
                 updateComicImagesOrder();
             }
         });
+    });
+
+
+    //new author field display
+    $('#ces-author').on('change', function() {
+        const selectedAuthor = $(this).val();
+        if (selectedAuthor === 'new_author') {
+            $('#new-author-field').show();
+        } else {
+            $('#new-author-field').hide();
+        }
     });
 })(jQuery);
