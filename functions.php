@@ -221,8 +221,7 @@ function ces_process_cbz_ajax() {
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_subtitle_meta_box( $post )
-{
+function ces_display_subtitle_meta_box( $post ){
     // Use nonce for verification
     wp_nonce_field( 'ces_save_subtitle', 'ces_subtitle_nonce' );
 
@@ -243,8 +242,7 @@ function ces_display_subtitle_meta_box( $post )
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_series_meta_box( $post )
-{
+function ces_display_series_meta_box( $post ) {
     // Use nonce for verification
     wp_nonce_field( 'ces_save_series', 'ces_series_nonce' );
 
@@ -260,16 +258,53 @@ function ces_display_series_meta_box( $post )
     echo "<strong>" . esc_html( $value ) . "</strong>";
 }
 
+/*
+ * Function to display the publisher meta box
+ *
+ * @param WP_Post $post The current post object
+ */
+function ces_display_publisher_meta_box( $post ) {
+    // Use nonce for verification
+    wp_nonce_field( 'ces_save_publisher', 'ces_publisher_nonce' );
 
+    // Retrieve the current value of the meta field
+    $value = get_post_meta( $post->ID, '_ces_publisher', true );
 
+    if ( !empty( $value ) ) {
+        $value = esc_html( $value );
+    } else {
+        $value = 'No publisher';
+    }
+
+    echo "<strong>" . esc_html( $value ) . "</strong>";
+}
+/*
+ * Function to display the ISBN meta box
+ *
+ * @param WP_Post $post The current post object
+ */
+function ces_display_isbn_meta_box( $post ) {
+    // Use nonce for verification
+    wp_nonce_field( 'ces_save_isbn', 'ces_isbn_nonce' );
+
+    // Retrieve the current value of the meta field
+    $value = get_post_meta( $post->ID, '_ces_isbn', true );
+
+    if ( !empty( $value ) ) {
+        $value = esc_html( $value );
+    } else {
+        $value = 'No ISBN';
+    }
+
+    echo "<strong>" . esc_html( $value ) . "</strong>";
+}
 
 /*
  * Function to display the external link meta box
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_external_link_meta_box( $post )
-{
+function ces_display_external_link_meta_box( $post ) {
     // Use nonce for verification
     wp_nonce_field( 'ces_save_external_link', 'ces_external_link_nonce' );
     // Retrieve the current value of the meta field

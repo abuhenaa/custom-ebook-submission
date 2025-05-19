@@ -1,12 +1,15 @@
 <?php if (isset($_GET['submitted'])): ?>
-    <div class="ces-success-message">
+    <div class="ces-success-message woocommerce-message">
         <h2><?php _e('Submission Successful', 'ces'); ?></h2>
         <p><?php _e('Thank you for submitting your eBook. It will be reviewed shortly.', 'ces'); ?></p>
     </div>
 <?php
 return;
 endif; ?>
-
+<div class="ces-form-header">
+    <h2><?php _e('Submit Your eBook', 'ces'); ?></h2>
+    <p><?php _e('Please fill out the form below to submit your eBook for review.', 'ces'); ?></p>
+</div>
 <form method="post" enctype="multipart/form-data" class="ces-form">
     <?php wp_nonce_field('ces_submit_nonce', 'ces_nonce'); ?>
 
@@ -130,11 +133,6 @@ endif; ?>
             <div class="comic-image-instructions"><?php _e('Upload multiple images that will be converted to CBZ format. You can drag and drop to reorder them.', 'ces'); ?></div>
             <div id="comic-images-preview" class="comic-images-sortable"></div>
             <input type="hidden" name="comic_images_order" id="comic-images-order" />
-        </div>
-
-        <div class="ces-field full">
-            <label for="ces-external-link"><?php _e('External Print Link (optional)', 'ces'); ?>:</label>
-            <input type="url" name="external_link" id="ces-external-link" />
         </div>
     </div>
 

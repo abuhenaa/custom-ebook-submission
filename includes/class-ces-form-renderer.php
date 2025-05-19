@@ -33,11 +33,7 @@ class CES_Form_Renderer {
 
         ob_start();
         ?>
-        <div class="ces-form-container">
-            <div class="ces-form-header">
-                <h2><?php _e('Submit Your eBook', 'ces'); ?></h2>
-                <p><?php _e('Please fill out the form below to submit your eBook for review.', 'ces'); ?></p>
-            </div>
+        <div class="ces-form-container">           
 
             <?php
                 include CES_PLUGIN_DIR . 'templates/ebook-submission-form.php';
