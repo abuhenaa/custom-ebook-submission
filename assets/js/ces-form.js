@@ -11,18 +11,24 @@
             
             // Show the relevant field based on selection
             const selectedType = $(this).val();
+            $('#ces-epub-file, #ces-docx-file, #ces-cbz-file, #ces-comic_images-file').prop('required', false);
+            
             switch(selectedType) {
                 case 'epub':
                     $('#epub-upload-field').show();
+                    $('#ces-epub-file').prop('required', true);
                     break;
                 case 'docx':
                     $('#docx-upload-field').show();
+                    $('#ces-docx-file').prop('required', true);
                     break;
                 case 'cbz':
                     $('#cbz-upload-field').show();
+                    $('#ces-cbz-file').prop('required', true);
                     break;
                 case 'comic_images':
                     $('#comic-images-upload-field').show();
+                    $('#ces-comic-images').prop('required', true);
                     break;
             }
         });

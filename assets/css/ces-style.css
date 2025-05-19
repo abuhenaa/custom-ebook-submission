@@ -170,3 +170,7 @@
     font-weight: bold;
     margin-bottom: 10px;
 }
+.ces-required {
+    color: #f03f3f;
+    font-weight: bold;
+}
