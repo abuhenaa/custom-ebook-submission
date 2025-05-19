@@ -12,7 +12,7 @@
             // Show the relevant field based on selection
             const selectedType = $(this).val();
             $('#ces-epub-file, #ces-docx-file, #ces-cbz-file, #ces-comic_images-file').prop('required', false);
-            
+
             switch(selectedType) {
                 case 'epub':
                     $('#epub-upload-field').show();
@@ -177,4 +177,61 @@
             $('#new-author-field').hide();
         }
     });
+
+    // Initialize the subcategory population on page load if main category is already selected
+    var mainCategorySelect = $('#ces-main-category');
+    var subcategorySelect = $('#ces-subcategory');
+    
+    // Load subcategories when main category changes
+    mainCategorySelect.on('change', function() {
+        var parentId = $(this).val();
+        
+        if (!parentId) {
+            // If no category selected, disable and reset subcategory select
+            subcategorySelect.prop('disabled', true);
+            subcategorySelect.html('<option value="">' + 'Select a main category first' + '</option>');
+            return;
+        }
+        
+        // Show loading state
+        subcategorySelect.html('<option value="">Loading...</option>');
+        
+        // Fetch subcategories via AJAX
+        $.ajax({
+            url: ces_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'ces_get_subcategories',
+                parent_id: parentId
+            },
+            success: function(response) {
+                if (response.success && response.data.length > 0) {
+                    // Enable the subcategory select and populate options
+                    subcategorySelect.prop('disabled', false);
+                    
+                    var options = '<option value="">Select a subcategory</option>';
+                    $.each(response.data, function(index, subcat) {
+                        options += '<option value="' + subcat.id + '">' + subcat.name + '</option>';
+                    });
+                    
+                    subcategorySelect.html(options);
+                } else {
+                    // No subcategories available
+                    subcategorySelect.prop('disabled', true);
+                    subcategorySelect.html('<option value="">No subcategories available</option>');
+                }
+            },
+            error: function() {
+                // Error handling
+                subcategorySelect.prop('disabled', true);
+                subcategorySelect.html('<option value="">Error loading subcategories</option>');
+            }
+        });
+    });
+    
+    // If there's a pre-selected main category (like on form edit)
+    if (mainCategorySelect.val()) {
+        mainCategorySelect.trigger('change');
+    }
+    
 })(jQuery);

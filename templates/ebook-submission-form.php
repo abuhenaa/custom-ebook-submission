@@ -1,6 +1,11 @@
 <?php if (isset($_GET['submitted'])): ?>
-    <p class="ces-success"><?php _e('Your eBook has been submitted for review!', 'ces'); ?></p>
-<?php endif; ?>
+    <div class="ces-success-message">
+        <h2><?php _e('Submission Successful', 'ces'); ?></h2>
+        <p><?php _e('Thank you for submitting your eBook. It will be reviewed shortly.', 'ces'); ?></p>
+    </div>
+<?php
+return;
+endif; ?>
 
 <form method="post" enctype="multipart/form-data" class="ces-form">
     <?php wp_nonce_field('ces_submit_nonce', 'ces_nonce'); ?>
@@ -55,14 +60,22 @@
             <div id="cover-image-preview" class="image-preview"></div>
         </div>
 
-        <div class="ces-field">
-            <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>:</label>
-            <select name="main_category" id="ces-main-category" required>
-                <?php foreach (ces_get_main_categories() as $cat): ?>
-                    <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+    <div class="ces-field">
+        <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>: <span class="ces-required">*</span></label>
+        <select name="main_category" id="ces-main-category" required>
+            <option value=""><?php _e('Select a category', 'ces'); ?></option>
+            <?php foreach (ces_get_main_categories() as $cat): ?>
+                <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    
+    <div class="ces-field">
+        <label for="ces-subcategory"><?php _e('Subcategory', 'ces'); ?>:</label>
+        <select name="subcategory" id="ces-subcategory" disabled>
+            <option value=""><?php _e('Select a main category first', 'ces'); ?></option>
+        </select>
+    </div>
 
         <div class="ces-field">
             <label for="ces-category-suggestion"><?php _e('Suggest a new category (optional)', 'ces'); ?>:</label>

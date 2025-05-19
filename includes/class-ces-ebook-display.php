@@ -18,7 +18,6 @@ class CES_Ebook_Display {
     public function enqueue_assets() {
         if ( is_product() ) {
             wp_enqueue_style( 'ces-ebook-display', CES_PLUGIN_URL . 'assets/css/ces-ebook-display.css', [], CES_PLUGIN_VERSION );
-            wp_enqueue_script( 'ces-ebook-display', CES_PLUGIN_URL . 'assets/js/ces-ebook-display.js', [ 'jquery' ], CES_PLUGIN_VERSION, true );
             
             // Load required JSZip library first (needed by ePub.js)
             wp_register_script('jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', [], '3.5.0', true);
@@ -62,7 +61,7 @@ class CES_Ebook_Display {
         //var_dump($epub_url); // Debugging line to check the URL
         
         if ($epub_url && pathinfo($epub_url, PATHINFO_EXTENSION) == 'epub') {
-        $has_access = false; //$this->user_has_purchased($product_id); disabled for testing
+        $has_access = $this->user_has_purchased($product_id);
         ?>
         <div id="epub-preview-container" style="margin-top: 40px;">
             <h3><?php esc_html_e('Preview this eBook', 'textdomain'); ?></h3>

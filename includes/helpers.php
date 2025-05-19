@@ -15,6 +15,18 @@ function ces_get_main_categories() {
     ]);
 }
 
+/**
+ * Function to get subcategories by parent ID
+ */
+function ces_get_subcategories($parent_id) {
+    return get_terms([
+        'taxonomy'   => 'product_cat',
+        'hide_empty' => false,
+        'parent'     => $parent_id,
+        'orderby'    => 'name',
+    ]);
+}
+
 //get author custom taxonomy
 function ces_get_authors() {
     $args = [

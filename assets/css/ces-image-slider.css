@@ -25,7 +25,7 @@
   color: white;
 }
 
-.ces-slider-prev, 
+.ces-slider-prev,
 .ces-slider-next {
   background-color: #0073aa;
   color: white;
@@ -35,7 +35,7 @@
   border-radius: 3px;
 }
 
-.ces-slider-prev:hover, 
+.ces-slider-prev:hover,
 .ces-slider-next:hover {
   background-color: #005177;
 }
@@ -44,18 +44,74 @@
   font-size: 14px;
 }
 
+.ces-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.ces-modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 1000px;
+  max-height: 90vh;
+  position: relative;
+}
+
+.ces-close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#ces-preview-container {
+  width: 100%;
+  height: 70vh;
+  overflow: auto;
+  border: 1px solid #ddd;
+  margin-top: 15px;
+}
+
+.ces-preview-container {
+  margin: 15px 0;
+}
+
+/* CBZ image styling */
+.ces-cbz-image {
+  max-width: 100%;
+  margin-bottom: 10px;
+  display: block;
+}
+
+#next-page,
+#prev-page {
+  cursor: pointer;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .ces-slider-nav {
     padding: 5px;
   }
-  
-  .ces-slider-prev, 
+
+  .ces-slider-prev,
   .ces-slider-next {
     padding: 3px 8px;
     font-size: 12px;
   }
-  
+
   .ces-slider-counter {
     font-size: 12px;
   }

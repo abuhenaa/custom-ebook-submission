@@ -7,45 +7,33 @@ if ( !defined( 'ABSPATH' ) ) {
 function ces_allow_epub_uploads( $mime_types )
 {
     $mime_types[ 'epub' ] = 'application/epub+zip';
+    $mime_types[ 'cbz' ]  = 'application/vnd.comicbook+zip';
     return $mime_types;
 }
 add_filter( 'upload_mimes', 'ces_allow_epub_uploads' );
 
-add_action( 'add_meta_boxes', 'add_requested_categories_meta_box' );
 
-function add_requested_categories_meta_box()
-{
-    add_meta_box(
-        '_category_suggestion', // Unique ID
-        'Requested Categories', // Box title
-        'ces_display_requested_categories_meta_box', // Content callback
-        'product', // Post type
-        'side', // Context (normal, side, advanced)
-        'high' // Priority (high, core, default, low)
-    );
+// Enqueue epub js and jszip in admin
+add_action( 'admin_enqueue_scripts', 'ces_enqueue_epub_js' );
+function ces_enqueue_epub_js(){
+    // Enqueue CSS for the image slider ces-image-slider
+    wp_enqueue_style( 'ces-image-slider', plugin_dir_url( __FILE__ ) . 'assets/css/ces-image-slider.css' );
+    // Enqueue JS for the image slider ces-image-slider
+    wp_enqueue_script( 'ces-image-slider', plugin_dir_url( __FILE__ ) . 'assets/js/ces-image-slider.js', array( 'jquery' ), '1.0.0', true );
+    //nonce
+    wp_localize_script( 'ces-image-slider', 'ces_ajax', array(
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce'    => wp_create_nonce( 'ces_preview_nonce' )
+    ) );
+
+    // Enqueue JSZip and ePub.js
+    wp_enqueue_script( 'jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', array(), '3.5.0', true );
+    wp_enqueue_script( 'epub-js', 'https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js', array( 'jszip' ), '0.3.88', true );
 }
 
-function ces_display_requested_categories_meta_box( $post )
-{
-    // Use nonce for verification
-    wp_nonce_field( 'ces_save_requested_categories', 'ces_requested_categories_nonce' );
-
-    // Retrieve the current value of the meta field
-    $value = get_post_meta( $post->ID, '_category_suggestion', true );
-
-    if ( !empty( $value ) ) {
-        $value = esc_html( $value );
-    } else {
-        $value = 'No categories requested';
-    }
-
-    echo "<strong>" . esc_html( $value ) . "</strong>";
-}
-
-//add subtitle and series metabox to the product
-add_action( 'add_meta_boxes', 'ces_add_subtitle_series_meta_box' );
-function ces_add_subtitle_series_meta_box()
-{
+//add necessary meta boxes to the product
+add_action( 'add_meta_boxes', 'ces_add_meta_box' );
+function ces_add_meta_box(){
 
     //ebook file preview
     add_meta_box(
@@ -56,6 +44,16 @@ function ces_add_subtitle_series_meta_box()
         'normal',
         'high'
     );
+
+    add_meta_box(
+        '_category_suggestion', // Unique ID
+        'Requested Categories', // Box title
+        'ces_display_requested_categories_meta_box', // Content callback
+        'product', // Post type
+        'side', // Context (normal, side, advanced)
+        'high' // Priority (high, core, default, low)
+    );
+
     add_meta_box(
         '_ces_subtitle', // Unique ID
         'Subtitle', // Box title
@@ -81,6 +79,44 @@ function ces_add_subtitle_series_meta_box()
         'normal',
         'high'
     );
+    //add publisher and isbn metabox to the product
+    add_meta_box(
+        '_ces_publisher',
+        'Publisher',
+        'ces_display_publisher_meta_box',
+        'product',
+        'normal',
+        'high'
+    );
+    add_meta_box(
+        '_ces_isbn',
+        'ISBN',
+        'ces_display_isbn_meta_box',
+        'product',
+        'normal',
+        'high'
+    );
+}
+
+/*
+ * Function to display the publisher meta box
+ *
+ * @param WP_Post $post The current post object
+ */
+function ces_display_requested_categories_meta_box( $post ) {
+    // Use nonce for verification
+    wp_nonce_field( 'ces_save_requested_categories', 'ces_requested_categories_nonce' );
+
+    // Retrieve the current value of the meta field
+    $value = get_post_meta( $post->ID, '_category_suggestion', true );
+
+    if ( !empty( $value ) ) {
+        $value = esc_html( $value );
+    } else {
+        $value = 'No categories requested';
+    }
+
+    echo "<strong>" . esc_html( $value ) . "</strong>";
 }
 
 /*
@@ -96,8 +132,7 @@ function ces_display_ebook_file_preview_meta_box( $post )
 
     // Only show preview if a file exists
     if ( !empty( $file_url ) ) {
-
-        $file_type = wp_check_filetype( basename( $file_path ), null );
+        $file_type = wp_check_filetype( basename( $file_path ), null );      
         $extension = $file_type[ 'ext' ];
 
         // Display preview button
@@ -118,179 +153,11 @@ function ces_display_ebook_file_preview_meta_box( $post )
             </div>
         </div>';
 
-        // Add necessary scripts
-        add_action( 'admin_footer', 'ces_ebook_preview_scripts' );
     } else {
         echo '<p>Upload an e-book file to enable preview.</p>';
     }
 }
 
-// Enqueue epub js and jszip in admin
-add_action( 'admin_enqueue_scripts', 'ces_enqueue_epub_js' );
-function ces_enqueue_epub_js(){
-    // Enqueue CSS for the image slider ces-image-slider
-    wp_enqueue_style( 'ces-image-slider', plugin_dir_url( __FILE__ ) . 'assets/css/ces-image-slider.css' );
-    // Enqueue JS for the image slider ces-image-slider
-    wp_enqueue_script( 'ces-image-slider', plugin_dir_url( __FILE__ ) . 'assets/js/ces-image-slider.js', array( 'jquery' ), '1.0.0', true );
-
-    // Enqueue JSZip and ePub.js
-    wp_enqueue_script( 'jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', array(), '3.5.0', true );
-    wp_enqueue_script( 'epub-js', 'https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js', array( 'jszip' ), '0.3.88', true );
-}
-
-// Add the necessary scripts and styles
-function ces_ebook_preview_scripts()
-{
-    ?>
-    <style>
-        .ces-modal {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.7);
-        }
-
-        .ces-modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 900px;
-            max-height: 90vh;
-            position: relative;
-        }
-
-        .ces-close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        #ces-preview-container {
-            width: 100%;
-            height: 70vh;
-            overflow: auto;
-            border: 1px solid #ddd;
-            margin-top: 15px;
-        }
-
-        .ces-preview-container {
-            margin: 15px 0;
-        }
-
-        /* CBZ image styling */
-        .ces-cbz-image {
-            max-width: 100%;
-            margin-bottom: 10px;
-            display: block;
-        }
-    </style>
-
-    <script>
-    jQuery(document).ready(function($) {
-        // Preview button click handler
-        $('.ces-preview-button').on('click', function() {
-            var fileUrl = $(this).data('file');
-            var fileType = $(this).data('type');
-            var filePath = $(this).data('path');
-
-            // Reset container
-            $('#ces-preview-container').empty();
-
-            // Open modal
-            $('#ces-preview-modal').show();
-
-            // Initialize appropriate preview based on file type
-            if (fileType === 'epub') {
-                initEpubReader(fileUrl);
-            } else if (fileType === 'cbz' || fileType === 'zip') {
-                initCbzViewer(fileUrl, filePath);
-            } else {
-                $('#ces-preview-container').html('<p>Unsupported file format. Please upload an EPUB or CBZ file.</p>');
-            }
-        });
-
-        // Close button handler
-        $('.ces-close').on('click', function() {
-            $('#ces-preview-modal').hide();
-        });
-
-        // Close modal when clicking outside
-        $(window).on('click', function(event) {
-            if ($(event.target).is('#ces-preview-modal')) {
-                $('#ces-preview-modal').hide();
-            }
-        });
-
-        // Initialize EPUB reader
-        function initEpubReader(fileUrl) {
-            // Create container for the viewer
-            $('#ces-preview-container').html('<div id="epub-viewer" style="width:100%;height:100%"></div>');
-
-            // Initialize EPUB reader
-            var book = ePub(fileUrl);
-            var rendition = book.renderTo("epub-viewer", {
-                width: "100%",
-                height: "100%"
-            });
-
-            rendition.display();
-
-            // Navigation buttons
-            $('#prev-page').on('click', function(e) {
-                rendition.prev();
-                e.preventDefault();
-            });
-
-            $('#next-page').on('click', function(e) {
-                rendition.next();
-                e.preventDefault();
-            });
-        }
-
-        // Initialize CBZ viewer
-        function initCbzViewer(fileUrl, filePath) {
-            // Show loading indicator
-            $('#ces-preview-container').html('<p>Loading CBZ content...</p>');
-
-            // AJAX request to process the CBZ file
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    'action': 'ces_process_cbz',
-                    'file_path': filePath,
-                    'nonce': '<?php echo wp_create_nonce( "ces_preview_nonce" ); ?>'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        $('#ces-preview-container').empty();
-
-                        // Display the CBZ images
-                        $.each(response.data, function(index, imageUrl) {
-                            $('#ces-preview-container').append('<img class="ces-cbz-image" src="' + imageUrl + '" alt="Page ' + (index + 1) + '">');
-                        });
-                    } else {
-                        $('#ces-preview-container').html('<p>Error: ' + response.data + '</p>');
-                    }
-                },
-                error: function() {
-                    $('#ces-preview-container').html('<p>Error processing the CBZ file.</p>');
-                }
-            });
-        }
-    });
-    </script>
-    <?php
-}
 
 // AJAX handler for processing CBZ files
 add_action( 'wp_ajax_ces_process_cbz', 'ces_process_cbz_ajax' );
@@ -392,6 +259,9 @@ function ces_display_series_meta_box( $post )
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
 }
+
+
+
 
 /*
  * Function to display the external link meta box
@@ -500,7 +370,7 @@ function ces_show_book_info_table()
     // Only show the table if at least one field is not empty
     if ( !empty( $subtitle ) || !empty( $series ) || !empty( $publisher ) || !empty( $isbn ) ) {
         echo '<div class="ces-book-info-table">';
-        echo '<h3>' . __( 'Book Information', 'ces' ) . '</h3>';
+        echo '<h3 style="margin-bottom:15px">' . __( 'Book Information', 'ces' ) . '</h3>';
         echo '<table>';
         if ( !empty( $subtitle ) ) {
             echo '<tr><th>' . __( 'Subtitle', 'ces' ) . '</th><td>' . esc_html( $subtitle ) . '</td></tr>';
@@ -518,3 +388,29 @@ function ces_show_book_info_table()
         echo '</div>';
     }
 }
+
+/**
+ * AJAX handler to get subcategories
+ */
+function ces_get_subcategories_ajax() {
+    if (!isset($_POST['parent_id'])) {
+        wp_send_json_error('Missing parent ID');
+        wp_die();
+    }
+    
+    $parent_id = intval($_POST['parent_id']);
+    $subcategories = ces_get_subcategories($parent_id);
+    
+    $options = [];
+    foreach ($subcategories as $subcat) {
+        $options[] = [
+            'id' => $subcat->term_id,
+            'name' => $subcat->name
+        ];
+    }
+    
+    wp_send_json_success($options);
+    wp_die();
+}
+add_action('wp_ajax_ces_get_subcategories', 'ces_get_subcategories_ajax');
+add_action('wp_ajax_nopriv_ces_get_subcategories', 'ces_get_subcategories_ajax');

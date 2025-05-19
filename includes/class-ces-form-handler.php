@@ -30,11 +30,13 @@ class CES_Form_Handler
             'post_author' => get_current_user_id(),
          ] );
 
-        // Now handle the category (assuming it's a valid category ID)
-        if ( !empty( $_POST[ 'main_category' ] ) ) {
-            wp_set_object_terms( $product_id, (int) $_POST[ 'main_category' ], 'product_cat' );
+        // Code to assign both main category and subcategory to the product
+        if (!empty($_POST['main_category']) && !empty($_POST['subcategory'])) {
+            wp_set_object_terms($product_id, (int) $_POST['subcategory'], 'product_cat');
+        } elseif (!empty($_POST['main_category'])) {
+            wp_set_object_terms($product_id, (int) $_POST['main_category'], 'product_cat');
         }
-
+        
         // Handle tags
         if ( !empty( $_POST[ 'tags' ] ) ) {
             $tags = array_map( 'sanitize_text_field', explode( ',', $_POST[ 'tags' ] ) );

@@ -18,6 +18,10 @@ class CES_Form_Renderer {
         wp_enqueue_script('ces-form', CES_PLUGIN_URL . 'assets/js/ces-scripts.js', ['jquery'], null, true);
         wp_enqueue_script('jquery-ui-sortable');
         wp_enqueue_script('ces-form-script', CES_PLUGIN_URL . '/assets/js/ces-form.js', array('jquery', 'jquery-ui-sortable'), '1.0.0', true);
+        wp_localize_script('ces-form-script', 'ces_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('ces_nonce')
+        ));
     }
 
     public function render_form() {
