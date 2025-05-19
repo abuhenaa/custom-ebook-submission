@@ -46,96 +46,71 @@ function ces_get_authors() {
  * @return string HTML output for the preview
  */
 function ces_display_cbz_preview_pages($cbz_file_path, $pages_to_show = [0, 1]) {
-    // Verify file exists
+    // Hardcoded file path (for testing)
+    //$cbz_file_path = "F:\laragon\www\client\wp-content\uploads\books\cbz.cbz";
+
     if (!file_exists($cbz_file_path)) {
         return '<div class="cbz-error">CBZ file not found</div>';
     }
-    
-    // Open the CBZ file (which is actually a ZIP file)
+
+    // Open ZIP archive
     $zip = new ZipArchive();
     if ($zip->open($cbz_file_path) !== true) {
         return '<div class="cbz-error">Could not open CBZ file</div>';
     }
-    
-    // Get all image files in the archive
+
+    // Temp directory for images
+    $upload_dir = wp_upload_dir();
+    $cbz_temp_dir = trailingslashit($upload_dir['basedir']) . 'cbz_previews/';
+    $cbz_temp_url = trailingslashit($upload_dir['baseurl']) . 'cbz_previews/';
+
+    if (!file_exists($cbz_temp_dir)) {
+        wp_mkdir_p($cbz_temp_dir);
+    }
+
+    // Get all image files in archive
     $image_files = [];
     for ($i = 0; $i < $zip->numFiles; $i++) {
         $filename = $zip->getNameIndex($i);
-        // Filter for image files
         if (preg_match('/(\.jpg|\.jpeg|\.png|\.gif|\.webp)$/i', $filename)) {
             $image_files[] = $filename;
         }
     }
-    
-    // Sort image files (they are often named numerically)
+
     natcasesort($image_files);
     $image_files = array_values($image_files);
-    $output = '<h3>Preview of Book</h3>';
-    $output .= '<p>Click on the images to view them in full size.</p>';
-    // Prepare output HTML
-    $output .= '<div class="cbz-preview-container woocommerce-product-gallery__wrapper" id="cbz-gallery">';
+    $output = '<h3>'. __('Preview of The Book','ces').'</h3><div class="cbz-preview-container" id="cbz-gallery">';
 
-    // Extract and display only the requested pages
+    $image_urls = [];
+
     foreach ($pages_to_show as $page_index) {
         if (isset($image_files[$page_index])) {
             $image_name = $image_files[$page_index];
-            
-            // Extract image content
-            $image_content = $zip->getFromName($image_name);
-            
-            // Convert to base64 for direct display
-            $image_type = pathinfo($image_name, PATHINFO_EXTENSION);
-            $base64 = base64_encode($image_content);
-            $data_uri = "data:image/{$image_type};base64,{$base64}";
-            
-            // Use WooCommerce's standard gallery item structure
-            $output .= sprintf(
-                '<div class="woocommerce-product-gallery__image cbz-page-wrapper">
-                    <a href="%1$s" 
-                    class="cbz-page-link woocommerce-product-gallery__image" 
-                    data-large_image="%1$s" 
-                    data-large_image_width="1024" 
-                    data-large_image_height="768">
-                        <div class="cbz-page">
-                            <img src="%1$s" alt="Page %2$d" class="wp-post-image" />
-                        </div>
-                    </a>
-                </div>',
-                $data_uri,
-                $page_index + 1
-            );
+            $image_basename = basename($image_name);
+            $saved_path = $cbz_temp_dir . $image_basename;
+            $saved_url = $cbz_temp_url . $image_basename;
+
+            // Save image to temp directory if it doesn't exist
+            if (!file_exists($saved_path)) {
+                $image_content = $zip->getFromName($image_name);
+                file_put_contents($saved_path, $image_content);
+            }
+
+            // Save URL to cookie-friendly array
+            $image_urls[] = $saved_url;
+
+            // Output image
+            $output .= '<div class="cbz-preview-image">';
+            $output .= '<img src="' . esc_url($saved_url) . '" alt="Page ' . ($page_index + 1) . '" />';
+            $output .= '</div>';
         }
     }
 
+    // Save image URLs to cookie
+    //setcookie('cbz_preview_images', json_encode($image_urls), time() + 3600, COOKIEPATH, COOKIE_DOMAIN);
+
     $output .= '</div>';
-
-    // Add script to activate PhotoSwipe for our CBZ images
-    $output .= '<script type="text/javascript">
-    jQuery(document).ready(function($) {
-        // Make sure CBZ images work with the existing WooCommerce PhotoSwipe implementation
-        $("#cbz-gallery").on("click", ".cbz-page-link", function(e) {
-            e.preventDefault();
-            
-            // If WooCommerce\'s PhotoSwipe trigger function exists, use it
-            if (typeof wc_single_product_params !== "undefined" && 
-                $(".woocommerce-product-gallery").data("photoswipe") && 
-                typeof $(".woocommerce-product-gallery").data("photoswipe").openPhotoswipe === "function") {
-                    
-                // Create an event object similar to what WooCommerce expects
-                var clickEvent = $.Event("click");
-                clickEvent.target = $(this)[0];
-                
-                // Trigger WooCommerce\'s PhotoSwipe
-                $(".woocommerce-product-gallery").data("photoswipe").openPhotoswipe(clickEvent);
-            }
-        });
-    });
-    </script>';
-
-    return $output;
-    
-    // Close the ZIP archive
     $zip->close();
-    
+
     return $output;
 }

@@ -99,7 +99,7 @@ endif; ?>
 
         <div class="ces-field">
             <label for="ces-vat-price"><?php _e('Price With VAT', 'ces'); ?>:</label>
-            <input type="text" name="vat_price" id="ces-vat-price" readonly/>
+            <input type="text" name="vat_price" id="ces-vat-price" disabled/>
         </div>
         <div class="ces-field">
             <label for="ces-file-type"><?php _e('File Type', 'ces'); ?>:</label>
