@@ -44,6 +44,8 @@ class CES_Form_Handler
         // Save additional meta
         update_post_meta( $product_id, '_ces_subtitle', sanitize_text_field( $_POST[ 'subtitle' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_series', sanitize_text_field( $_POST[ 'series' ] ?? '' ) );
+        update_post_meta( $product_id, '_ces_publisher', sanitize_text_field( $_POST[ 'publisher' ] ?? '' ) );
+        update_post_meta( $product_id, '_ces_isbn', sanitize_text_field( $_POST[ 'isbn' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_external_link', esc_url_raw( $_POST[ 'external_link' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_main_category', sanitize_text_field( $_POST[ 'main_category' ] ?? '' ) );
         update_post_meta( $product_id, '_category_suggestion', sanitize_text_field( $_POST[ 'category_suggestion' ] ?? '' ) );

@@ -22,6 +22,10 @@
             <label for="ces-publisher"><?php _e('Publisher (optional)', 'textdomain'); ?>:</label>
             <input type="text" name="publisher" id="ces-publisher" />
         </div>
+        <div class="ces-field">
+            <label for="ces-isbn"><?php _e('ISBN (optional)', 'textdomain'); ?>:</label>
+            <input type="text" name="isbn" id="ces-isbn" />
+        </div>
 
         <!-- Author selection -->
         <div class="ces-field">
