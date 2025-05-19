@@ -97,22 +97,22 @@
 
         <!-- Dynamic file upload fields - will be shown/hidden based on file type selection -->
         <div class="ces-field full file-upload-field" id="epub-upload-field">
-            <label for="ces-epub-file"><?php _e('Upload EPUB File', 'ces'); ?>:</label>
+            <label for="ces-epub-file"><?php _e('Upload EPUB File', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="epub_file" id="ces-epub-file" accept=".epub" required/>
         </div>
 
         <div class="ces-field full file-upload-field" id="docx-upload-field" style="display:none;">
-            <label for="ces-docx-file"><?php _e('Upload DOCX File', 'ces'); ?>:</label>
+            <label for="ces-docx-file"><?php _e('Upload DOCX File', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="docx_file" id="ces-docx-file" accept=".docx" />
         </div>
 
         <div class="ces-field full file-upload-field" id="cbz-upload-field" style="display:none;">
-            <label for="ces-cbz-file"><?php _e('Upload CBZ File', 'ces'); ?>:</label>
+            <label for="ces-cbz-file"><?php _e('Upload CBZ File', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="cbz_file" id="ces-cbz-file" accept=".cbz" />
         </div>
 
         <div class="ces-field full file-upload-field" id="comic-images-upload-field" style="display:none;">
-            <label for="ces-comic-images"><?php _e('Upload Comic Images', 'ces'); ?>:</label>
+            <label for="ces-comic-images"><?php _e('Upload Comic Images', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="comic_images[]" id="ces-comic-images" accept="image/*" multiple />
             <div class="comic-image-instructions"><?php _e('Upload multiple images that will be converted to CBZ format. You can drag and drop to reorder them.', 'ces'); ?></div>
             <div id="comic-images-preview" class="comic-images-sortable"></div>
