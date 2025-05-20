@@ -18,7 +18,9 @@ class CES_Ebook_Display {
     public function enqueue_assets() {
         if ( is_product() ) {
             wp_enqueue_style( 'ces-ebook-display', CES_PLUGIN_URL . 'assets/css/ces-ebook-display.css', [], CES_PLUGIN_VERSION );
-            
+            wp_enqueue_style( 'ces-image-slider', CES_PLUGIN_URL . 'assets/css/ces-image-slider.css' );
+            // Enqueue JS for the image slider ces-image-slider
+            wp_enqueue_script( 'ces-image-slider', CES_PLUGIN_URL . 'assets/js/ces-image-slider.js', array( 'jquery' ), '1.0.0', true );
             // Load required JSZip library first (needed by ePub.js)
             wp_register_script('jszip', 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', [], '3.5.0', true);
             wp_enqueue_script('jszip');
@@ -36,6 +38,12 @@ class CES_Ebook_Display {
         if ( ! is_user_logged_in() ) {
             return false;
         }
+
+        //check if admin or vendor or purchased
+        if ( current_user_can( 'administrator' ) || current_user_can( 'vendor' ) ) {
+            return true;
+        }
+        // Check if the user has purchased the product
         $orders = wc_get_orders( [
             'customer_id' => get_current_user_id(),
             'status'      => 'completed',
@@ -77,6 +85,8 @@ class CES_Ebook_Display {
         <script>
         jQuery(document).ready(function($) {
             
+            var hasAccess = <?php echo $has_access ? 'true' : 'false'; ?>;
+            console.log("User has access: " + hasAccess);
             try {
                 
                 // Use a Book constructor with explicit options instead of shorthand format
@@ -89,11 +99,12 @@ class CES_Ebook_Display {
                     height: "100%",
                     spread: "none",
                     flow: "paginated",
-                    minSpreadWidth: 800
+                    minSpreadWidth: 800,
+                    gap: 10,
                 });
 
                 var pageCounter = 0;
-                var previewLimit = 2; // Set the limit for free preview pages
+                var previewLimit = 3; // Set the limit for free preview pages
                 var previewMessageShown = false;
                 
                 // For preview, start at the first chapter in TOC
@@ -118,7 +129,10 @@ class CES_Ebook_Display {
                     
                     // Reset the direction flag
                     isForward = true;
-                    
+                    // If user has access, allow unlimited pages
+                    if (hasAccess) {
+                        return;
+                    }
                     // Check if preview limit is reached
                     if (pageCounter > previewLimit && !previewMessageShown) {
                         // Show purchase overlay
@@ -129,17 +143,19 @@ class CES_Ebook_Display {
 
                 // Add event listeners for navigation
                 $("#prev-page").on("click", function() {
-                    if (pageCounter > 0) {
-                        isForward = false; // Mark that we're going backward
-                        pageCounter--; // Decrement counter on backward navigation
-                        rendition.prev();
-                    }
+                    rendition.prev();
+                    isForward = false; // Set direction to backward
                 });
 
                 $("#next-page").on("click", function() {
-                    if (pageCounter < previewLimit) {
+                    if (hasAccess) {
                         rendition.next();
-                    } else {
+                    } else if (pageCounter <= previewLimit) {
+                        // Allow forward navigation only if within the preview limit
+                        rendition.next();
+                        pageCounter++; 
+                        console.log(pageCounter) // Increment counter on forward navigation
+                    }else {
                         // If already at limit, just show the overlay
                         $("#ces-purchase-overlay").css("display", "flex");
                         previewMessageShown = true;
@@ -155,7 +171,7 @@ class CES_Ebook_Display {
             //CBZ preview
             $cbz_file_path = get_post_meta($product_id, '_ces_ebook_file_path', true);
             //var_dump($cbz_file_path); // Debugging line to check the URL
-            echo ces_display_cbz_preview_pages($cbz_file_path, [0, 2]);
+            echo ces_display_cbz_preview_pages( $cbz_file_path );
            
         }
     }
@@ -164,7 +180,7 @@ class CES_Ebook_Display {
      * Add purchase overlay
      */
     public function add_purchase_overlay() {
-        if ( ! is_product() ) {
+        if ( ! is_product() || current_user_can( 'administrator' ) || current_user_can( 'vendor' ) ) {
             return;
         }
         ?>

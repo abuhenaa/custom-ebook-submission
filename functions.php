@@ -449,3 +449,4 @@ function ces_get_subcategories_ajax() {
 }
 add_action('wp_ajax_ces_get_subcategories', 'ces_get_subcategories_ajax');
 add_action('wp_ajax_nopriv_ces_get_subcategories', 'ces_get_subcategories_ajax');
+

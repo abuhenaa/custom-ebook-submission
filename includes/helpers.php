@@ -45,9 +45,7 @@ function ces_get_authors() {
  * @param array $pages_to_show Array of page indices to show (default: [0, 1])
  * @return string HTML output for the preview
  */
-function ces_display_cbz_preview_pages($cbz_file_path, $pages_to_show = [0, 1]) {
-    // Hardcoded file path (for testing)
-    //$cbz_file_path = "F:\laragon\www\client\wp-content\uploads\books\cbz.cbz";
+function ces_display_cbz_preview_pages($cbz_file_path) {    
 
     if (!file_exists($cbz_file_path)) {
         return '<div class="cbz-error">CBZ file not found</div>';
@@ -79,13 +77,26 @@ function ces_display_cbz_preview_pages($cbz_file_path, $pages_to_show = [0, 1]) 
 
     natcasesort($image_files);
     $image_files = array_values($image_files);
-    $output = '<h3>'. __('Preview of The Book','ces').'</h3><div class="cbz-preview-container" id="cbz-gallery">';
+    $output = '<h3 class="ces-preview-title">'. __('Preview of The Book','ces').'</h3><div id="ces-preview-container">';
+    $output .= '<div class="ces-slider-navigation">';
+    $output .= '<button id="prev-page" class="ces-slider-button"><i class="fas fa-chevron-left"></i></button>';
+    $output .= '<button id="next-page" class="ces-slider-button"><i class="fas fa-chevron-right"></i></button>';
+    $output .= '</div>';
+    
+    $output .= '<div class="ces-cbz-image-wrapper">';
 
     $image_urls = [];
 
-    foreach ($pages_to_show as $page_index) {
-        if (isset($image_files[$page_index])) {
-            $image_name = $image_files[$page_index];
+    //if user vendor or admin or purchased product
+    if (current_user_can('administrator') || current_user_can('vendor') ) {
+        $image_files = $image_files; // Show all images
+    } else {
+        $image_files = array_slice($image_files, 0, 3); // Limit to first 3 image
+    }
+    
+    if (isset($image_files)) {
+    foreach ($image_files as $image) {
+            $image_name = $image;
             $image_basename = basename($image_name);
             $saved_path = $cbz_temp_dir . $image_basename;
             $saved_url = $cbz_temp_url . $image_basename;
@@ -100,15 +111,16 @@ function ces_display_cbz_preview_pages($cbz_file_path, $pages_to_show = [0, 1]) 
             $image_urls[] = $saved_url;
 
             // Output image
-            $output .= '<div class="cbz-preview-image">';
-            $output .= '<img src="' . esc_url($saved_url) . '" alt="Page ' . ($page_index + 1) . '" />';
+            $output .= '<div class="ces-cbz-image">';
+            $output .= '<img src="' . esc_url($saved_url) . '" />';
             $output .= '</div>';
         }
     }
 
     // Save image URLs to cookie
     //setcookie('cbz_preview_images', json_encode($image_urls), time() + 3600, COOKIEPATH, COOKIE_DOMAIN);
-
+    
+    $output .= '</div>';
     $output .= '</div>';
     $zip->close();
 

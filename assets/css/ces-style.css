@@ -113,6 +113,19 @@
     height: 180px;
     background-color: #f5f5f5;
 }
+.ces-form-container .author-notice {
+    font-size: 16px;
+    color: #666;
+    margin-top: 10px;
+}
+header.dokan-dashboard-header .ces-form-header h2 {
+    display: none;
+}
+
+header.dokan-dashboard-header .ces-form-header p {
+    font-size: 24px;
+    margin: 30px 0;
+}
 
 /* Submit Button */
 .ces-submit {
@@ -168,4 +181,8 @@
 .ces-required {
     color: #f03f3f;
     font-weight: bold;
+}
+
+.ces-success-message p {
+    font-size: 16px;
 }

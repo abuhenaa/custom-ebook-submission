@@ -110,7 +110,39 @@
 .cbz-page-link:hover img {
     transform: scale(1.05);
 }
+body.calibre p {
+    padding: 5px 10px !important;
+}
 
+.ces-slider-navigation {
+    display: inline-block;
+    margin: 15px 0;
+    position: absolute;
+    z-index: 99999;
+    top: 0;
+    left: 0;
+}
+
+.ces-slider-navigation button {
+    margin-right: 20px;
+}
+.ces-preview-title{
+    margin-bottom: 30px;
+}
+.ces-slider-container {
+    width: 80% !important;
+    height: auto !important;
+    overflow: hidden !important;
+    border: unset !important;
+    margin: unset !important;
+}
+.ces-slider-container .ces-cbz-image {
+    width: 80% !important;
+    height: auto !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+
+}
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .cbz-preview-container {
