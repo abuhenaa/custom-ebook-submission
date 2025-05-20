@@ -399,7 +399,7 @@ class CES_File_Handler{
         $epub_output = $books_dir . '/' . $epub_filename;
         
         // Convert DOCX to EPUB using pandoc
-        $cmd = "usr/bin/pandoc " . escapeshellarg( $file_path ) . " -o " . escapeshellarg( $epub_output );
+        $cmd = "pandoc " . escapeshellarg( $file_path ) . " -o " . escapeshellarg( $epub_output );
         shell_exec( $cmd );
 
         // Check if conversion succeeded
