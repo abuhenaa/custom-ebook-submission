@@ -150,11 +150,12 @@ endif; ?>
         </div>
                 
         <!-- Cover image upload -->
-        <div class="ces-field">
+        <div class="ces-field cover-upload-field">
             <label for="ces-cover-image"><?php _e('Cover Image', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" required />
             <div id="cover-image-preview" class="image-preview"></div>
             <div id="cover-image-error" style="color: red; margin-top: 5px;"></div>
+            <span class="author-notice"><?php echo esc_html__( 'Please upload an image with a 2:3 aspect ratio','ces'); ?></span>
         </div>
 
     <div class="ces-field">

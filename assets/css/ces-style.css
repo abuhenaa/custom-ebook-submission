@@ -144,13 +144,28 @@
     height: 100px;
     margin: 10px;
 }
-.file-upload-field {
+.file-upload-field,.cover-upload-field {
     border: 2px dashed #eee;
     padding: 5px;
 }
 button.remove-comic-image {
     background: #c74a4a;
     padding: 5px;
+    min-width: 30px;
+}
+.ces-modal-content .ces-modal-header h2 {
+    font-size: 22px;
+}
+
+.ces-modal-content .ces-modal-controls .ces-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: unset;
+    min-width: 30px;
+}
+div#ces-preview-container .ces-slider-navigation button {
+    min-width: 30px;
+    height: 30px;
 }
 .ces-form-container .author-notice {
     font-size: 16px;
@@ -216,6 +231,7 @@ header.dokan-dashboard-header .ces-form-header p {
     border-radius: 4px;
     font-weight: bold;
     margin-bottom: 10px;
+    margin-right: 10px;
 }
 .ces-required {
     color: #f03f3f;
