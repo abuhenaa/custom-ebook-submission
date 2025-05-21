@@ -16,7 +16,6 @@ class CES_Ebook_Display {
      * enqueue assets for the eBook display
      */
     public function enqueue_assets() {
-        if ( is_product() ) {
             wp_enqueue_style( 'ces-ebook-display', CES_PLUGIN_URL . 'assets/css/ces-ebook-display.css', [], CES_PLUGIN_VERSION );
             wp_enqueue_style( 'ces-image-slider', CES_PLUGIN_URL . 'assets/css/ces-image-slider.css' );
             // Enqueue JS for the image slider ces-image-slider
@@ -28,7 +27,7 @@ class CES_Ebook_Display {
             // Load ePub.js with explicit version
             wp_register_script('epub-js', 'https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js', ['jszip'], '0.3.88', true);
             wp_enqueue_script('epub-js');
-        }
+
     }
 
     /**

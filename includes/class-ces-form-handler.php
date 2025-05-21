@@ -48,6 +48,10 @@ class CES_Form_Handler
         update_post_meta( $product_id, '_ces_series', sanitize_text_field( $_POST[ 'series' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_publisher', sanitize_text_field( $_POST[ 'publisher' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_isbn', sanitize_text_field( $_POST[ 'isbn' ] ?? '' ) );
+        //publication_date
+        $publication_date = sanitize_text_field( $_POST[ 'publication_date' ] ?? '' );
+        update_post_meta( $product_id, 'publication_date', $publication_date );
+
         //update_post_meta( $product_id, '_ces_external_link', esc_url_raw( $_POST[ 'external_link' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_main_category', sanitize_text_field( $_POST[ 'main_category' ] ?? '' ) );
         update_post_meta( $product_id, '_category_suggestion', sanitize_text_field( $_POST[ 'category_suggestion' ] ?? '' ) );
@@ -105,7 +109,8 @@ class CES_Form_Handler
         $file_handler = new CES_File_Handler( $product_id );
         $file_handler->handle_upload( $_FILES, $file_type );
 
-        wp_redirect( add_query_arg( 'submitted', 'true', get_permalink() ) );
+        // Change this line in CES_Form_Handler class
+        wp_redirect(add_query_arg(['submitted' => 'true', 'product_id' => $product_id], get_permalink()));
         exit;
     }
 }

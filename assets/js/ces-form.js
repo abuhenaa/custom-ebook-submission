@@ -36,19 +36,54 @@
         // Initialize with the default selection (EPUB)
         $('#epub-upload-field').show();
 
-        // Handle cover image preview
-        $('#ces-cover-image').on('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#cover-image-preview').html('<img src="' + e.target.result + '" alt="Cover Preview" />');
+// Handle cover image preview and validate dimensions
+$('#ces-cover-image').on('change', function () {
+    const file = this.files[0];
+    const $preview = $('#cover-image-preview');
+    const $error = $('#cover-image-error');
+
+    $preview.empty();
+    $error.remove(); // remove old error
+
+    if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const width = img.width;
+                const height = img.height;
+                const ratio = width / height;
+                const expectedRatio = 2 / 3;
+                const tolerance = 0.09;
+
+                const isValid =
+                    Math.abs(ratio - expectedRatio) < tolerance;
+
+                if (!isValid) {
+                    $('<div id="cover-image-error" style="color: red; margin-top: 5px;">Please upload an image with a 2:3 aspect ratio</div>')
+                        .insertAfter($preview);
+                    $('#ces-cover-image').val('');
+                    return;
                 }
-                reader.readAsDataURL(file);
-            } else {
-                $('#cover-image-preview').empty();
-            }
-        });
+
+                // Valid image — show preview
+                $preview.html('<img src="' + e.target.result + '" alt="Cover Preview" style="max-height: 150px;" />');
+            };
+
+            img.onerror = function () {
+                $('<div id="cover-image-error" style="color: red; margin-top: 5px;">Invalid image file.</div>')
+                    .insertAfter($preview);
+                $('#ces-cover-image').val('');
+            };
+
+            img.src = e.target.result;
+        };
+
+        reader.readAsDataURL(file);
+    }
+});
+
 
         $('#submitBtn').on('click', function (e) {          
 
@@ -63,98 +98,303 @@
                 $('.tag-notice').text('');
             }
         });
-        // Handle price input validation and VAT calculation
-        $('.ces-field #ces-price').on('change', function () {
-            let inputVal = $(this).val();
+        
+// Common function to sanitize and validate price input
+function sanitizePrice(element) {
+    let inputVal = element.val();
+    let cursorPos = element[0].selectionStart;
+    let dotAdded = false;
+    
+    // Store original length
+    const originalLength = inputVal.length;
+    
+    // Replace any commas with dots
+    if (inputVal.indexOf(',') !== -1) {
+        const commaPos = inputVal.indexOf(',');
+        inputVal = inputVal.replace(/,/g, '.');
+        if (cursorPos > commaPos) {
+            dotAdded = true;
+        }
+    }
+    
+    // Allow only one decimal point
+    const firstDotPos = inputVal.indexOf('.');
+    if (firstDotPos !== -1 && firstDotPos !== inputVal.lastIndexOf('.')) {
+        const newVal = inputVal.substring(0, firstDotPos + 1) + 
+                       inputVal.substring(firstDotPos + 1).replace(/\./g, '');
+        inputVal = newVal;
+    }
+    
+    // Limit to 2 decimal places
+    if (firstDotPos !== -1 && inputVal.length > firstDotPos + 3) {
+        inputVal = inputVal.substring(0, firstDotPos + 3);
+    }
+    
+    // Only update if value changed to avoid cursor jumping
+    if (element.val() !== inputVal) {
+        element.val(inputVal);
+        
+        // Restore cursor position
+        if (dotAdded) {
+            cursorPos = Math.min(cursorPos, inputVal.length);
+            element[0].setSelectionRange(cursorPos, cursorPos);
+        }
+    }
+    
+    // If empty, reset and return null
+    if (!inputVal) {
+        $('.price-notice').text('');
+        return null;
+    }
+    
+    // Allow partial input like "2." during typing
+    if (/^\d+\.?$/.test(inputVal)) {
+        $('.price-notice').text('');
+        return parseFloat(inputVal || 0);
+    }
+    
+    // Check if the value is a valid number with max 2 decimal places
+    if (!/^\d+(\.\d{1,2})?$/.test(inputVal)) {
+        $('.price-notice').text('Please enter a valid price with no more than 2 decimal places.');
+        return null;
+    } else {
+        // Clear error message
+        $('.price-notice').text('');
+    }
+    
+    const price = parseFloat(inputVal);
+    if (isNaN(price) || price < 0) {
+        element.val('0.00');
+        $('.price-notice').text('Please enter a valid positive price.');
+        return null;
+    }
+    
+    return price;
+}
 
-            // Check if the value is a valid number with max 2 decimal places
-            if (!/^\d+(\.\d{1,2})?$/.test(inputVal)) {
-                 $('.price-notice').text('Please enter a valid price with no more than 2 decimal places.');
-                $(this).val(inputVal.toFixed(2));
-                $('#ces-vat-price').val('0.00');
-                return;
-            }else{
-                //clear
-                $('.price-notice').text('');
-            }
+// Format price on blur
+function setBlurHandler(element) {
+    element.off('blur').on('blur', function() {
+        const value = parseFloat($(this).val());
+        if (!isNaN(value)) {
+            $(this).val(value.toFixed(2));
+        }
+    });
+}
 
-            const price = parseFloat(inputVal);
-            if (isNaN(price) || price < 0) {
-                $(this).val('0.00');
-                $('.price-notice').text('Please enter a valid positive price.');
-                $('#ces-vat-price').val('0.00');
-                return;
-            }else{
-                //clear
-                $('.price-notice').text('');
-            }
+// VAT rate
+const VAT_RATE = 5.5;
 
-            // Optionally format the input to 2 decimal places
-            $(this).val(price.toFixed(2));
+// Handle price without VAT input
+$('.ces-field #ces-price').on('input change', function() {
+    const price = sanitizePrice($(this));
+    if (price === null) {
+        $('#ces-vat-price').val('0.00');
+        return;
+    }
+    
+    // Calculate price with VAT
+    const priceWithVat = price * (1 + (VAT_RATE / 100));
+    $('#ces-vat-price').val(priceWithVat.toFixed(2));
+    
+    setBlurHandler($(this));
+});
 
-            const vatPrice = price + (price * 5.5 / 100);
-            $('#ces-vat-price').val(vatPrice.toFixed(2));
-        });
+// Handle price with VAT input
+$('.ces-field #ces-vat-price').on('input change', function() {
+    const priceWithVat = sanitizePrice($(this));
+    if (priceWithVat === null) {
+        $('#ces-price').val('0.00');
+        return;
+    }
+    
+    // Calculate price without VAT
+    const priceWithoutVat = priceWithVat / (1 + (VAT_RATE / 100));
+    $('#ces-price').val(priceWithoutVat.toFixed(2));
+    
+    setBlurHandler($(this));
+});
 
 
-        // Handle comic images upload and preview
-        $('#ces-comic-images').on('change', function() {
-            const files = this.files;
-            const previewContainer = $('#comic-images-preview');
+// Initialize the sortable functionality
+    $('#comic-images-preview').sortable({
+        items: '.comic-image-item',
+        placeholder: 'comic-image-placeholder',
+        cursor: 'move',
+        update: function(event, ui) {
+            // Renumber the images after sorting
+            renumberComicImages();
             
-            // Clear previous previews
-            previewContainer.empty();
-            
-            if (files.length > 0) {
-                // Create elements for each image with draggable functionality
-                Array.from(files).forEach(function(file, index) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imageWrapper = $('<div class="comic-image-item" data-index="' + index + '"></div>');
-                        const imagePreview = $('<div class="comic-image-preview"><img src="' + e.target.result + '" alt="Comic Image ' + (index + 1) + '" /></div>');
-                        const imageInfo = $('<div class="comic-image-info"><span class="comic-image-number">' + (index + 1) + '</span><span class="comic-image-name">' + file.name + '</span></div>');
-                        
-                        imageWrapper.append(imagePreview);
-                        imageWrapper.append(imageInfo);
-                        previewContainer.append(imageWrapper);
-                    }
-                    reader.readAsDataURL(file);
-                });
+            // Update the hidden field with the new order
+            updateComicImagesOrder();
+        }
+    });
 
-                // Update the order field with initial values
-                updateComicImagesOrder();
-            }
-        });
+    // Store files globally to maintain references
+    let uploadedFiles = [];
+    let fileCounter = 0;
 
-        // Make comic images sortable
-        $('#comic-images-preview').sortable({
-            items: '.comic-image-item',
-            placeholder: 'comic-image-placeholder',
-            cursor: 'move',
-            update: function(event, ui) {
-                // Renumber the images after sorting
-                renumberComicImages();
+    // Trigger file input when clicking on the dropzone (except when clicking on existing images)
+    $('#comic-images-preview').on('click', function(e) {
+        if (!$(e.target).closest('.comic-image-item').length) {
+            $('#ces-comic-images').click();
+        }
+    });
+
+    // Handle file selection via the file input
+    $('#ces-comic-images').on('change', function(e) {
+        const files = e.target.files;
+        if (files.length > 0) {
+            handleFiles(files);
+        }
+    });
+
+    // Drag and drop events for the dropzone
+    const dropZone = document.getElementById('comic-images-preview');
+    
+    // Prevent default behavior for drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight the dropzone when dragging over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        dropZone.classList.add('drag-over');
+    }
+
+    function unhighlight() {
+        dropZone.classList.remove('drag-over');
+    }
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            handleFiles(files);
+        }
+    }
+
+    // Process the files (both from input and drop)
+    function handleFiles(files) {
+        // Remove the dropzone message once files are added
+        $('.dropzone-message').hide();
+        
+        // Process each file
+        Array.from(files).forEach(file => {
+            if (file.type.startsWith('image/')) {
+                const currentIndex = fileCounter++;
+                uploadedFiles.push({ file, index: currentIndex });
                 
-                // Update the hidden field with the new order
-                updateComicImagesOrder();
+                // Create image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageItem = $(`
+                        <div class="comic-image-item" data-index="${currentIndex}">
+                            <div class="comic-image-number">${$('#comic-images-preview .comic-image-item').length + 1}</div>
+                            <div class="comic-image-preview">
+                                <img src="${e.target.result}" alt="Comic Image Preview" />
+                            </div>
+                            <div class="comic-image-actions">
+                                <button type="button" class="remove-comic-image" data-index="${currentIndex}">
+                                    <span class="dashicons dashicons-trash"></span>
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                    
+                    $('#comic-images-preview').append(imageItem);
+                    updateComicImagesOrder();
+                }
+                reader.readAsDataURL(file);
             }
         });
+    }
 
-        // Function to renumber the comic images after sorting
-        function renumberComicImages() {
-            $('#comic-images-preview .comic-image-item').each(function(index) {
-                $(this).find('.comic-image-number').text(index + 1);
-            });
+    // Handle removal of images
+    $(document).on('click', '.remove-comic-image', function() {
+        const index = $(this).data('index');
+        
+        // Remove the file from our array
+        uploadedFiles = uploadedFiles.filter(item => item.index !== index);
+        
+        // Remove the item from the DOM
+        $(this).closest('.comic-image-item').remove();
+        
+        // If no images left, show the dropzone message again
+        if ($('#comic-images-preview .comic-image-item').length === 0) {
+            $('.dropzone-message').show();
         }
+        
+        // Renumber and update order
+        renumberComicImages();
+        updateComicImagesOrder();
+    });
 
-        // Function to update the hidden field with the current order of images
-        function updateComicImagesOrder() {
-            const order = [];
-            $('#comic-images-preview .comic-image-item').each(function() {
-                order.push($(this).data('index'));
+    // Function to renumber the comic images after sorting
+    function renumberComicImages() {
+        $('#comic-images-preview .comic-image-item').each(function(index) {
+            $(this).find('.comic-image-number').text(index + 1);
+        });
+    }
+
+    // Function to update the hidden field with the current order of images
+    function updateComicImagesOrder() {
+        const order = [];
+        $('#comic-images-preview .comic-image-item').each(function() {
+            order.push($(this).data('index'));
+        });
+        $('#comic-images-order').val(JSON.stringify(order));
+    }
+
+    // Form submission handling
+    $('.ces-form').on('submit', function(e) {
+        if ($('#ces-file-type').val() === 'comic_images') {
+            // Create a FormData object to handle the files
+            const formData = new FormData(this);
+            
+            // Remove any existing comic_images entries and add our files in the correct order
+            const inputs = formData.getAll('comic_images[]');
+            inputs.forEach(() => {
+                formData.delete('comic_images[]');
             });
-            $('#comic-images-order').val(JSON.stringify(order));
+            
+            // Get current order
+            const order = JSON.parse($('#comic-images-order').val() || '[]');
+            
+            // Add files in the correct order
+            order.forEach(index => {
+                const fileObj = uploadedFiles.find(item => item.index === index);
+                if (fileObj) {
+                    formData.append('comic_images[]', fileObj.file);
+                }
+            });
+            
+            // Here you can either:
+            // 1. Submit via AJAX
+            // 2. Or update the file input with the correctly ordered files
+            
+            // For this example, we're just ensuring the order is correct
+            // The actual form submission would depend on your server-side handling
+            updateComicImagesOrder();
         }
+    });
 
         // Form submission handling
         $('.ces-form').on('submit', function(e) {

@@ -12,10 +12,10 @@ function ces_allow_epub_uploads( $mime_types )
 }
 add_filter( 'upload_mimes', 'ces_allow_epub_uploads' );
 
-
 // Enqueue epub js and jszip in admin
 add_action( 'admin_enqueue_scripts', 'ces_enqueue_epub_js' );
-function ces_enqueue_epub_js(){
+function ces_enqueue_epub_js()
+{
     // Enqueue CSS for the image slider ces-image-slider
     wp_enqueue_style( 'ces-image-slider', plugin_dir_url( __FILE__ ) . 'assets/css/ces-image-slider.css' );
     // Enqueue JS for the image slider ces-image-slider
@@ -23,7 +23,7 @@ function ces_enqueue_epub_js(){
     //nonce
     wp_localize_script( 'ces-image-slider', 'ces_ajax', array(
         'ajax_url' => admin_url( 'admin-ajax.php' ),
-        'nonce'    => wp_create_nonce( 'ces_preview_nonce' )
+        'nonce'    => wp_create_nonce( 'ces_preview_nonce' ),
     ) );
 
     // Enqueue JSZip and ePub.js
@@ -33,7 +33,8 @@ function ces_enqueue_epub_js(){
 
 //add necessary meta boxes to the product
 add_action( 'add_meta_boxes', 'ces_add_meta_box' );
-function ces_add_meta_box(){
+function ces_add_meta_box()
+{
 
     //ebook file preview
     add_meta_box(
@@ -103,7 +104,8 @@ function ces_add_meta_box(){
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_requested_categories_meta_box( $post ) {
+function ces_display_requested_categories_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_requested_categories', 'ces_requested_categories_nonce' );
 
@@ -132,7 +134,7 @@ function ces_display_ebook_file_preview_meta_box( $post )
 
     // Only show preview if a file exists
     if ( !empty( $file_url ) ) {
-        $file_type = wp_check_filetype( basename( $file_path ), null );      
+        $file_type = wp_check_filetype( basename( $file_path ), null );
         $extension = $file_type[ 'ext' ];
 
         // Display preview button
@@ -158,10 +160,10 @@ function ces_display_ebook_file_preview_meta_box( $post )
     }
 }
 
-
 // AJAX handler for processing CBZ files
 add_action( 'wp_ajax_ces_process_cbz', 'ces_process_cbz_ajax' );
-function ces_process_cbz_ajax() {
+function ces_process_cbz_ajax()
+{
     // Check nonce
     if ( !isset( $_POST[ 'nonce' ] ) || !wp_verify_nonce( $_POST[ 'nonce' ], 'ces_preview_nonce' ) ) {
         wp_send_json_error( 'Security check failed' );
@@ -221,7 +223,8 @@ function ces_process_cbz_ajax() {
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_subtitle_meta_box( $post ){
+function ces_display_subtitle_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_subtitle', 'ces_subtitle_nonce' );
 
@@ -242,7 +245,8 @@ function ces_display_subtitle_meta_box( $post ){
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_series_meta_box( $post ) {
+function ces_display_series_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_series', 'ces_series_nonce' );
 
@@ -263,7 +267,8 @@ function ces_display_series_meta_box( $post ) {
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_publisher_meta_box( $post ) {
+function ces_display_publisher_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_publisher', 'ces_publisher_nonce' );
 
@@ -283,7 +288,8 @@ function ces_display_publisher_meta_box( $post ) {
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_isbn_meta_box( $post ) {
+function ces_display_isbn_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_isbn', 'ces_isbn_nonce' );
 
@@ -304,13 +310,14 @@ function ces_display_isbn_meta_box( $post ) {
  *
  * @param WP_Post $post The current post object
  */
-function ces_display_external_link_meta_box( $post ) {
+function ces_display_external_link_meta_box( $post )
+{
     // Use nonce for verification
     wp_nonce_field( 'ces_save_external_link', 'ces_external_link_nonce' );
     // Retrieve the current value of the meta field
-    $value = get_post_meta( $post->ID, '_ces_external_link', true );
+    $value = get_post_meta( $post->ID, '_ces_bookstore_link', true );
     echo "<label for='ces_external_link'>External Link:</label>";
-    echo "<input type='text' id='ces_external_link' name='ces_external_link' value='" . esc_html( $value ) . "' />";
+    echo "<input type='text' id='ces_external_link' name='bookstore_link' value='" . esc_html( $value ) . "' />";
 
 }
 
@@ -341,7 +348,7 @@ function ces_save_subtitle_series_meta_box( $post_id )
 
     // Save the external link
     if ( isset( $_POST[ 'ces_external_link' ] ) ) {
-        update_post_meta( $post_id, '_ces_external_link', esc_url_raw( $_POST[ 'ces_external_link' ] ) );
+        update_post_meta( $post_id, '_ces_bookstore_link', esc_url_raw( $_POST[ 'bookstore_link' ] ) );
     }
 }
 
@@ -383,7 +390,7 @@ add_action( 'woocommerce_single_product_summary', 'ces_show_supporting_badge', 6
 function ces_show_supporting_badge()
 {
     global $post;
-    $external_link = get_post_meta( $post->ID, '_ces_external_link', true );
+    $external_link = get_post_meta( $post->ID, '_ces_bookstore_link', true );
 
     if ( !empty( $external_link ) ) {
         echo '<div class="ces-supporting-badge">' . __( 'Supporting Local Bookstores', 'ces' ) . '</div>';
@@ -397,10 +404,11 @@ function ces_show_book_info_table()
     global $post;
 
     // Get the custom fields
-    $subtitle  = get_post_meta( $post->ID, '_ces_subtitle', true );
-    $series    = get_post_meta( $post->ID, '_ces_series', true );
-    $publisher = get_post_meta( $post->ID, '_ces_publisher', true );
-    $isbn      = get_post_meta( $post->ID, '_ces_isbn', true );
+    $subtitle         = get_post_meta( $post->ID, '_ces_subtitle', true );
+    $series           = get_post_meta( $post->ID, '_ces_series', true );
+    $publisher        = get_post_meta( $post->ID, '_ces_publisher', true );
+    $isbn             = get_post_meta( $post->ID, '_ces_isbn', true );
+    $publication_date = get_post_meta( $post->ID, 'publication_date', true );
 
     // Only show the table if at least one field is not empty
     if ( !empty( $subtitle ) || !empty( $series ) || !empty( $publisher ) || !empty( $isbn ) ) {
@@ -419,6 +427,9 @@ function ces_show_book_info_table()
         if ( !empty( $isbn ) ) {
             echo '<tr><th>' . __( 'ISBN', 'ces' ) . '</th><td>' . esc_html( $isbn ) . '</td></tr>';
         }
+        if ( !empty( $publication_date ) ) {
+            echo '<tr><th>' . __( 'Publication Date', 'ces' ) . '</th><td>' . esc_html( $publication_date ) . '</td></tr>';
+        }
         echo '</table>';
         echo '</div>';
     }
@@ -427,26 +438,120 @@ function ces_show_book_info_table()
 /**
  * AJAX handler to get subcategories
  */
-function ces_get_subcategories_ajax() {
-    if (!isset($_POST['parent_id'])) {
-        wp_send_json_error('Missing parent ID');
+function ces_get_subcategories_ajax()
+{
+    if ( !isset( $_POST[ 'parent_id' ] ) ) {
+        wp_send_json_error( 'Missing parent ID' );
         wp_die();
     }
-    
-    $parent_id = intval($_POST['parent_id']);
-    $subcategories = ces_get_subcategories($parent_id);
-    
-    $options = [];
-    foreach ($subcategories as $subcat) {
-        $options[] = [
-            'id' => $subcat->term_id,
-            'name' => $subcat->name
-        ];
+
+    $parent_id     = intval( $_POST[ 'parent_id' ] );
+    $subcategories = ces_get_subcategories( $parent_id );
+
+    $options = [  ];
+    foreach ( $subcategories as $subcat ) {
+        $options[  ] = [
+            'id'   => $subcat->term_id,
+            'name' => $subcat->name,
+         ];
     }
-    
-    wp_send_json_success($options);
+
+    wp_send_json_success( $options );
     wp_die();
 }
-add_action('wp_ajax_ces_get_subcategories', 'ces_get_subcategories_ajax');
-add_action('wp_ajax_nopriv_ces_get_subcategories', 'ces_get_subcategories_ajax');
+add_action( 'wp_ajax_ces_get_subcategories', 'ces_get_subcategories_ajax' );
+add_action( 'wp_ajax_nopriv_ces_get_subcategories', 'ces_get_subcategories_ajax' );
 
+/**
+ * Handle the print book form submission
+ */
+function ces_handle_print_book_submission()
+{
+    if ( isset( $_POST[ 'submit_print_book' ] ) && isset( $_POST[ 'ces_print_book_nonce' ] ) &&
+        wp_verify_nonce( $_POST[ 'ces_print_book_nonce' ], 'ces_print_book_action' ) ) {
+
+        // Get the product ID
+        $product_id = isset( $_POST[ 'product_id' ] ) ? intval( $_POST[ 'product_id' ] ) : 0;
+
+        if ( $product_id <= 0 ) {
+            wp_die( __( 'Invalid product ID.', 'ces' ) );
+        }
+
+        // Get form data
+        $personal_website_link = isset( $_POST[ 'personal_website_link' ] ) ? esc_url_raw( $_POST[ 'personal_website_link' ] ) : '';
+        $bookstore_link        = isset( $_POST[ 'bookstore_link' ] ) ? esc_url_raw( $_POST[ 'bookstore_link' ] ) : '';
+
+        // Save as post meta to the product
+        update_post_meta( $product_id, '_ces_personal_website_link', $personal_website_link );
+        update_post_meta( $product_id, '_ces_bookstore_link', $bookstore_link );
+
+        // Set a flag if supporting bookstores
+        if ( !empty( $bookstore_link ) ) {
+            update_post_meta( $product_id, '_ces_supports_bookstores', 'yes' );
+        } else {
+            update_post_meta( $product_id, '_ces_supports_bookstores', 'no' );
+        }
+
+        // Redirect to a thank you page or the home page
+        wp_redirect( add_query_arg( 'print_book_added', 'true', get_permalink() ) );
+        exit;
+    }
+}
+add_action( 'init', 'ces_handle_print_book_submission' );
+
+/**
+ * Display a "Supports bookstores" badge on products
+ */
+function ces_display_bookstore_badge()
+{
+    global $product;
+
+    if ( !$product ) {
+        return;
+    }
+
+    $product_id          = $product->get_id();
+    $supports_bookstores = get_post_meta( $product_id, '_ces_supports_bookstores', true );
+
+    if ( $supports_bookstores === 'yes' ) {
+        echo '<span class="ces-bookstore-badge">' . __( 'Supports bookstores', 'ces' ) . '</span>';
+    }
+}
+//add_action('woocommerce_before_shop_loop_item_title', 'ces_display_bookstore_badge', 15);
+//add_action('woocommerce_single_product_summary', 'ces_display_bookstore_badge', 7);
+
+/**
+ * Add print book links to the product display
+ */
+function ces_display_print_book_links()
+{
+    global $product;
+
+    if ( !$product ) {
+        return;
+    }
+
+    $product_id            = $product->get_id();
+    $personal_website_link = get_post_meta( $product_id, '_ces_personal_website_link', true );
+    $bookstore_link        = get_post_meta( $product_id, 'ces_external_link', true );
+
+    if ( !empty( $personal_website_link ) || !empty( $bookstore_link ) ) {
+        echo '<div class="ces-print-book-links">';
+        echo '<h4>' . __( 'Get the printed book:', 'ces' ) . '</h4>';
+        echo '<ul>';
+
+        if ( !empty( $personal_website_link ) ) {
+            echo '<li><a href="' . esc_url( $personal_website_link ) . '" target="_blank" rel="nofollow">' .
+            __( 'Author\'s Website', 'ces' ) . '</a></li>';
+        }
+
+        if ( !empty( $bookstore_link ) ) {
+            echo '<li><a href="' . esc_url( $bookstore_link ) . '" target="_blank" rel="nofollow">' .
+            __( 'Independent Bookstore', 'ces' ) . '</a></li>';
+        }
+
+        echo '</ul>';
+        echo '</div>';
+    }
+}
+//add_action('woocommerce_single_product_summary', 'ces_display_print_book_links', 25);

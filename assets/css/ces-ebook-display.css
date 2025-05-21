@@ -150,3 +150,11 @@ body.calibre p {
         grid-gap: 10px;
     }
 }
+
+.ces-modal-controls button {
+    background: #393977;
+}
+
+.ces-modal-controls button:hover {
+    background: #5168c6;
+}
