@@ -317,7 +317,7 @@ function ces_display_external_link_meta_box( $post )
     // Retrieve the current value of the meta field
     $value = get_post_meta( $post->ID, '_ces_bookstore_link', true );
     echo "<label for='ces_external_link'>External Link:</label>";
-    echo "<input type='text' id='ces_external_link' name='bookstore_link' value='" . esc_html( $value ) . "' />";
+    echo "<input type='text' id='ces_external_link' name='_ces_bookstore_link' value='" . esc_html( $value ) . "' />";
 
 }
 
@@ -348,7 +348,7 @@ function ces_save_subtitle_series_meta_box( $post_id )
 
     // Save the external link
     if ( isset( $_POST[ 'ces_external_link' ] ) ) {
-        update_post_meta( $post_id, '_ces_bookstore_link', esc_url_raw( $_POST[ 'bookstore_link' ] ) );
+        update_post_meta( $post_id, '_ces_bookstore_link', esc_url_raw( $_POST[ '_ces_bookstore_link' ] ) );
     }
 }
 
@@ -393,7 +393,7 @@ function ces_show_supporting_badge()
     $external_link = get_post_meta( $post->ID, '_ces_bookstore_link', true );
 
     if ( !empty( $external_link ) ) {
-        echo '<div class="ces-supporting-badge">' . __( 'Supporting Local Bookstores', 'ces' ) . '</div>';
+        echo '<div class="ces-supporting-badge"><a href="'. esc_url_raw( $external_link ).'" rel="nofollow" target="_blank">' . __( 'Supports Bookstores', 'ces' ) . '</a></div>';
     }
 }
 
