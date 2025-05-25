@@ -57,7 +57,6 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                     <?php if (!empty($publisher)): ?>
                         <p><strong><?php _e('Publisher:', 'ces'); ?></strong> <?php echo esc_html($publisher); ?></p>
                     <?php endif; ?>
-                    <p><strong><?php _e('Indicative Price:', 'ces'); ?></strong> <?php echo $price; ?></p>
                 </div>
             </div>
             
@@ -74,6 +73,10 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                     <label for="bookstore_link"><?php _e('Link to an independent bookstore (optional):', 'ces'); ?></label>
                     <input type="url" name="bookstore_link" id="bookstore_link">
                     <span class="description"><?php _e('If provided, your book will be marked with "Supports bookstores" badge', 'ces'); ?></span>
+                </div>
+                <div class="form-field">
+                    <label for="paperbook_price"><?php _e('Price of the printed book (optional):', 'ces'); ?></label>
+                    <input type="number" name="paperbook_price" id="paperbook_price" step="0.01">
                 </div>
                 
                 <div class="form-buttons">
@@ -247,9 +250,8 @@ endif; ?>
 
 <script>
 
-    // First, let's add the modal HTML structure to your page
 
-// Add this HTML to your page (outside of your form)
+// HTML page (outside  form)
 const modalHTML = `
 <div id="ces-preview-modal" class="ces-modal">
     <div class="ces-modal-content">

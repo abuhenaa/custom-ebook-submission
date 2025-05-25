@@ -215,52 +215,69 @@ $('.ces-field #ces-vat-price').on('input change', function() {
     setBlurHandler($(this));
 });
 
-
 // Initialize the sortable functionality
-    $('#comic-images-preview').sortable({
-        items: '.comic-image-item',
-        placeholder: 'comic-image-placeholder',
-        cursor: 'move',
-        update: function(event, ui) {
-            // Renumber the images after sorting
-            renumberComicImages();
-            
-            // Update the hidden field with the new order
-            updateComicImagesOrder();
-        }
-    });
+$('#comic-images-preview').sortable({
+    items: '.comic-image-item',
+    placeholder: 'comic-image-placeholder',
+    cursor: 'move',
+    update: function(event, ui) {
+        // Renumber the images after sorting
+        renumberComicImages();
+        
+        // Update the hidden field with the new order
+        updateComicImagesOrder();
+        
+        // Update the file input with the new order
+        updateFileInput();
+        
+        // Check and update required attribute
+        checkComicImagesAndUpdateRequired();
+    }
+});
 
-    // Store files globally to maintain references
-    let uploadedFiles = [];
-    let fileCounter = 0;
+// Store files globally to maintain references
+let uploadedFiles = [];
+let fileCounter = 0;
 
-    // Trigger file input when clicking on the dropzone (except when clicking on existing images)
-    $('#comic-images-preview').on('click', function(e) {
-        if (!$(e.target).closest('.comic-image-item').length) {
-            $('#ces-comic-images').click();
-        }
-    });
+// Trigger file input when clicking on the dropzone (except when clicking on existing images)
+$('#comic-images-preview').on('click', function(e) {
+    if (!$(e.target).closest('.comic-image-item').length) {
+        $('#ces-comic-images').click();
+    }
+});
 
-    // Handle file selection via the file input
-    $('#ces-comic-images').on('change', function(e) {
-        const files = e.target.files;
-        if (files.length > 0) {
-            handleFiles(files);
-        }
-    });
+// Handle file selection via the file input
+$('#ces-comic-images').on('change', function(e) {
+    const files = e.target.files;
+    if (files.length > 0) {
+        // Clear existing files when using file input (to avoid duplicates)
+        uploadedFiles = [];
+        fileCounter = 0;
+        $('#comic-images-preview .comic-image-item').remove();
+        
+        handleFiles(files);
+    }
+});
 
-    // Drag and drop events for the dropzone
-    const dropZone = document.getElementById('comic-images-preview');
+function checkComicImagesAndUpdateRequired() {
+    var orderValue = $('#comic-images-order').val();
+    var isEmpty = (orderValue === '' || orderValue === '[]');
     
-    // Prevent default behavior for drag events
+    if (isEmpty) {
+        $('#ces-comic-images').attr('required', 'required');
+    } else {
+        $('#ces-comic-images').removeAttr('required');
+    }
+}
+
+// Drag and drop events for the dropzone
+const dropZone = document.getElementById('comic-images-preview');
+
+// Prevent default behavior for drag events
+if (dropZone) {
     ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
         dropZone.addEventListener(eventName, preventDefaults, false);
     });
-
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
 
     // Highlight the dropzone when dragging over it
     ['dragenter', 'dragover'].forEach(eventName => {
@@ -281,131 +298,130 @@ $('.ces-field #ces-vat-price').on('input change', function() {
 
     // Handle dropped files
     dropZone.addEventListener('drop', handleDrop, false);
+}
 
-    function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        
-        if (files.length > 0) {
-            handleFiles(files);
-        }
+function preventDefaults(e) {
+    e.preventDefault();
+    e.stopPropagation();
+}
+
+function handleDrop(e) {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    
+    if (files.length > 0) {
+        handleFiles(files);
     }
+}
 
-    // Process the files (both from input and drop)
-    function handleFiles(files) {
-        // Remove the dropzone message once files are added
-        $('.dropzone-message').hide();
-        
-        // Process each file
-        Array.from(files).forEach(file => {
-            if (file.type.startsWith('image/')) {
-                const currentIndex = fileCounter++;
-                uploadedFiles.push({ file, index: currentIndex });
-                
-                // Create image preview
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imageItem = $(`
-                        <div class="comic-image-item" data-index="${currentIndex}">
-                            <div class="comic-image-number">${$('#comic-images-preview .comic-image-item').length + 1}</div>
-                            <div class="comic-image-preview">
-                                <img src="${e.target.result}" alt="Comic Image Preview" />
-                            </div>
-                            <div class="comic-image-actions">
-                                <button type="button" class="remove-comic-image" data-index="${currentIndex}">
-                                    <span class="dashicons dashicons-trash"></span>
-                                </button>
-                            </div>
+// Process the files (both from input and drop)
+function handleFiles(files) {
+    // Remove the dropzone message once files are added
+    $('.dropzone-message').hide();
+    
+    // Process each file
+    Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+            const currentIndex = fileCounter++;
+            uploadedFiles.push({ file, index: currentIndex });
+            
+            // Create image preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageItem = $(`
+                    <div class="comic-image-item" data-index="${currentIndex}">
+                        <div class="comic-image-number">${$('#comic-images-preview .comic-image-item').length + 1}</div>
+                        <div class="comic-image-preview">
+                            <img src="${e.target.result}" alt="Comic Image Preview" />
                         </div>
-                    `);
-                    
-                    $('#comic-images-preview').append(imageItem);
-                    updateComicImagesOrder();
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // Handle removal of images
-    $(document).on('click', '.remove-comic-image', function() {
-        const index = $(this).data('index');
-        
-        // Remove the file from our array
-        uploadedFiles = uploadedFiles.filter(item => item.index !== index);
-        
-        // Remove the item from the DOM
-        $(this).closest('.comic-image-item').remove();
-        
-        // If no images left, show the dropzone message again
-        if ($('#comic-images-preview .comic-image-item').length === 0) {
-            $('.dropzone-message').show();
-        }
-        
-        // Renumber and update order
-        renumberComicImages();
-        updateComicImagesOrder();
-    });
-
-    // Function to renumber the comic images after sorting
-    function renumberComicImages() {
-        $('#comic-images-preview .comic-image-item').each(function(index) {
-            $(this).find('.comic-image-number').text(index + 1);
-        });
-    }
-
-    // Function to update the hidden field with the current order of images
-    function updateComicImagesOrder() {
-        const order = [];
-        $('#comic-images-preview .comic-image-item').each(function() {
-            order.push($(this).data('index'));
-        });
-        $('#comic-images-order').val(JSON.stringify(order));
-    }
-
-    // Form submission handling
-    $('.ces-form').on('submit', function(e) {
-        if ($('#ces-file-type').val() === 'comic_images') {
-            // Create a FormData object to handle the files
-            const formData = new FormData(this);
-            
-            // Remove any existing comic_images entries and add our files in the correct order
-            const inputs = formData.getAll('comic_images[]');
-            inputs.forEach(() => {
-                formData.delete('comic_images[]');
-            });
-            
-            // Get current order
-            const order = JSON.parse($('#comic-images-order').val() || '[]');
-            
-            // Add files in the correct order
-            order.forEach(index => {
-                const fileObj = uploadedFiles.find(item => item.index === index);
-                if (fileObj) {
-                    formData.append('comic_images[]', fileObj.file);
-                }
-            });
-            
-            // Here you can either:
-            // 1. Submit via AJAX
-            // 2. Or update the file input with the correctly ordered files
-            
-            // For this example, we're just ensuring the order is correct
-            // The actual form submission would depend on your server-side handling
-            updateComicImagesOrder();
-        }
-    });
-
-        // Form submission handling
-        $('.ces-form').on('submit', function(e) {
-            // Add any validation if needed
-            
-            // For comic images, ensure the order is updated before submission
-            if ($('#ces-file-type').val() === 'comic_images') {
+                        <div class="comic-image-actions">
+                            <button type="button" class="remove-comic-image" data-index="${currentIndex}">
+                                <span class="dashicons dashicons-trash"></span>
+                            </button>
+                        </div>
+                    </div>
+                `);
+                
+                $('#comic-images-preview').append(imageItem);
                 updateComicImagesOrder();
+                
+                // Update the file input with all files
+                updateFileInput();
             }
-        });
+            reader.readAsDataURL(file);
+        }
     });
+}
+
+// Handle removal of images
+$(document).on('click', '.remove-comic-image', function() {
+    const index = $(this).data('index');
+    
+    // Remove the file from our array
+    uploadedFiles = uploadedFiles.filter(item => item.index !== index);
+    
+    // Remove the item from the DOM
+    $(this).closest('.comic-image-item').remove();
+    
+    // If no images left, show the dropzone message again
+    if ($('#comic-images-preview .comic-image-item').length === 0) {
+        $('.dropzone-message').show();
+    }
+    
+    // Renumber and update order
+    renumberComicImages();
+    updateComicImagesOrder();
+    
+    // Update the file input
+    updateFileInput();
+});
+
+// Function to renumber the comic images after sorting
+function renumberComicImages() {
+    $('#comic-images-preview .comic-image-item').each(function(index) {
+        $(this).find('.comic-image-number').text(index + 1);
+    });
+}
+
+// Function to update the hidden field with the current order of images
+function updateComicImagesOrder() {
+    const order = [];
+    $('#comic-images-preview .comic-image-item').each(function() {
+        order.push($(this).data('index'));
+    });
+    $('#comic-images-order').val(JSON.stringify(order));
+
+    checkComicImagesAndUpdateRequired();
+}
+
+// Function to update the file input with the current files in the correct order
+function updateFileInput() {
+    const fileInput = document.getElementById('ces-comic-images');
+    const dt = new DataTransfer();
+    
+    // Get current order
+    const order = JSON.parse($('#comic-images-order').val() || '[]');
+    
+    // Add files in the correct order
+    order.forEach(index => {
+        const fileObj = uploadedFiles.find(item => item.index === index);
+        if (fileObj && fileObj.file) {
+            dt.items.add(fileObj.file);
+        }
+    });
+    
+    // Update the file input's files
+    fileInput.files = dt.files;
+}
+
+// Form submission handling - simplified since files are now in the input
+$('.ces-form').on('submit', function(e) {
+    if ($('#ces-file-type').val() === 'comic_images') {
+        // Ensure the file input is updated with the correct order before submission
+        updateFileInput();
+        updateComicImagesOrder();
+    }
+});
 
 
     //new author field display
@@ -473,5 +489,7 @@ $('.ces-field #ces-vat-price').on('input change', function() {
     if (mainCategorySelect.val()) {
         mainCategorySelect.trigger('change');
     }
+
+});
     
-})(jQuery);
+})(jQuery)

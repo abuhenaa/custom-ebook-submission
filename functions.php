@@ -393,7 +393,7 @@ function ces_show_supporting_badge()
     $external_link = get_post_meta( $post->ID, '_ces_bookstore_link', true );
 
     if ( !empty( $external_link ) ) {
-        echo '<div class="ces-supporting-badge"><a href="'. esc_url_raw( $external_link ).'" rel="nofollow" target="_blank">' . __( 'Supports Bookstores', 'ces' ) . '</a></div>';
+        echo '<div class="ces-supporting-badge"><a href="' . esc_url_raw( $external_link ) . '" rel="nofollow" target="_blank">' . __( 'Supports Bookstores', 'ces' ) . '</a></div>';
     }
 }
 
@@ -484,6 +484,7 @@ function ces_handle_print_book_submission()
         // Save as post meta to the product
         update_post_meta( $product_id, '_ces_personal_website_link', $personal_website_link );
         update_post_meta( $product_id, '_ces_bookstore_link', $bookstore_link );
+        update_post_meta( $product_id, 'paperbook_price', sanitize_text_field( $_POST[ 'paperbook_price' ] ) );
 
         // Set a flag if supporting bookstores
         if ( !empty( $bookstore_link ) ) {
@@ -555,3 +556,33 @@ function ces_display_print_book_links()
     }
 }
 //add_action('woocommerce_single_product_summary', 'ces_display_print_book_links', 25);
+
+//woocommerce_product_meta_start
+add_action( 'woocommerce_product_meta_start', 'ces_display_print_book_info', 25 );
+function ces_display_print_book_info()
+{
+    global $product;
+
+    if ( !$product ) {
+        return;
+    }
+
+    $product_id      = $product->get_id();
+    $paperbook_price = get_post_meta( $product_id, 'paperbook_price', true );
+    $bookstore_link  = get_post_meta( $product_id, '_ces_bookstore_link', true );
+
+    if ( !empty( $paperbook_price ) ) {
+        echo '<div class="ces-print-book-info">';
+
+        if ( !empty( $paperbook_price ) ) {
+            echo '<strong>' . __( 'Paperbook Price:', 'ces' ). wc_price( $paperbook_price )  . '</strong> ';
+        }
+        //buy button
+        if ( !empty( $bookstore_link ) ) {
+            echo '<a href="' . esc_url( $bookstore_link ) . '" class="button ces-buy-button" target="_blank" rel="nofollow">' .
+            __( 'Buy The Paperbook', 'ces' ) . '</a>';
+        }
+
+        echo '</div>';
+    }
+}

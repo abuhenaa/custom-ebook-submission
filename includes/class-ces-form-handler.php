@@ -30,6 +30,20 @@ class CES_Form_Handler
             'post_author' => get_current_user_id(),
          ] );
 
+         if ($product_id) {
+            // Trigger WooCommerce product save action
+            do_action('woocommerce_new_product', $product_id);
+            do_action('woocommerce_update_product', $product_id);
+            
+            // Clear Dokan caches
+            if (function_exists('dokan_clear_product_cache')) {
+                dokan_clear_product_cache();
+            }
+            
+            // Trigger Dokan product update hooks
+            do_action('dokan_new_product_added', $product_id, get_current_user_id());
+        }
+
         // Code to assign both main category and subcategory to the product
         if (!empty($_POST['main_category']) && !empty($_POST['subcategory'])) {
             wp_set_object_terms($product_id, (int) $_POST['subcategory'], 'product_cat');
