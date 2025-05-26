@@ -355,6 +355,9 @@ header.dokan-dashboard-header .ces-form-header p {
 #ces-print-book-form button {
     margin-left: 10px !important;
 }
+button#ces-preview-btn {
+    margin-left: 0px !important;
+}
 .ces-print-book-info {
     display: flex;
     align-items: flex-start;

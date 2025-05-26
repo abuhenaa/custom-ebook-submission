@@ -223,7 +223,6 @@ class CES_File_Handler{
         // Prepare file names array for ordering
         $image_files = [];
         $file_count = count($files['name']);
-        
         // Move uploaded files to temp directory
         for ($i = 0; $i < $file_count; $i++) {
             if ($files['error'][$i] === UPLOAD_ERR_OK) {
@@ -247,21 +246,21 @@ class CES_File_Handler{
             }
         }
         
-        // If we have an image order array, reorder the files
-        if ($image_order && is_array($image_order)) {
-            // Create a new ordered array
-            $ordered_files = [];
-            foreach ($image_order as $index => $original_index) {
-                if (isset($image_files[$original_index])) {
-                    $ordered_files[] = $image_files[$original_index];
-                }
-            }
+        // // If we have an image order array, reorder the files
+        // if ($image_order && is_array($image_order)) {
+        //     // Create a new ordered array
+        //     $ordered_files = [];
+        //     foreach ($image_order as $index => $original_index) {
+        //         if (isset($image_files[$original_index])) {
+        //             $ordered_files[] = $image_files[$original_index];
+        //         }
+        //     }
             
-            // If we have ordered files, replace the original array
-            if (!empty($ordered_files)) {
-                $image_files = $ordered_files;
-            }
-        }
+        //     // If we have ordered files, replace the original array
+        //     if (!empty($ordered_files)) {
+        //         $image_files = $ordered_files;
+        //     }
+        // }
         
         // Rename files sequentially based on their new order
         foreach ($image_files as $index => $file_info) {

@@ -55,7 +55,7 @@ $('#ces-cover-image').on('change', function () {
                 const height = img.height;
                 const ratio = width / height;
                 const expectedRatio = 2 / 3;
-                const tolerance = 0.09;
+                const tolerance = 0.5;
 
                 const isValid =
                     Math.abs(ratio - expectedRatio) < tolerance;

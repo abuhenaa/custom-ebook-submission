@@ -124,7 +124,7 @@ class CES_Form_Handler
         $file_handler->handle_upload( $_FILES, $file_type );
 
         // Change this line in CES_Form_Handler class
-        wp_redirect(add_query_arg(['submitted' => 'true', 'product_id' => $product_id], get_permalink()));
+        wp_redirect(add_query_arg(['submitted' => 'true', 'product_id' => $product_id, 'ces_file_type' => $file_type ], get_permalink()));
         exit;
     }
 }
