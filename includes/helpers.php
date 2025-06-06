@@ -3,6 +3,7 @@
 defined('ABSPATH') || exit;
 
 function ces_get_main_categories() {
+    if( ! class_exists('WooCommerce')) return;
     $uncat = get_term_by('slug', 'uncategorized', 'product_cat');
     $uncat_id = $uncat ? $uncat->term_id : null;
     return get_terms([

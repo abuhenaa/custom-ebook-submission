@@ -179,6 +179,7 @@ class CES_Ebook_Display {
      * Add purchase overlay
      */
     public function add_purchase_overlay() {
+        if( ! class_exists('WooCommerce')) return;
         if ( ! is_product() || current_user_can( 'administrator' ) || current_user_can( 'vendor' ) ) {
             return;
         }
