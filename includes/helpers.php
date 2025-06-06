@@ -57,15 +57,6 @@ function ces_display_cbz_preview_pages($cbz_file_path) {
         return '<div class="cbz-error">Could not open CBZ file</div>';
     }
 
-    // Temp directory for images
-    $upload_dir = wp_upload_dir();
-    $cbz_temp_dir = trailingslashit($upload_dir['basedir']) . 'cbz_previews/';
-    $cbz_temp_url = trailingslashit($upload_dir['baseurl']) . 'cbz_previews/';
-
-    if (!file_exists($cbz_temp_dir)) {
-        wp_mkdir_p($cbz_temp_dir);
-    }
-
     // Get all image files in archive
     $image_files = [];
     for ($i = 0; $i < $zip->numFiles; $i++) {
@@ -75,8 +66,28 @@ function ces_display_cbz_preview_pages($cbz_file_path) {
         }
     }
 
-    natcasesort($image_files);
-    $image_files = array_values($image_files);
+    // Improved sorting function for numeric filenames
+    usort($image_files, function($a, $b) {
+        // Extract just the filename without path
+        $a_basename = basename($a);
+        $b_basename = basename($b);
+        
+        // Extract numeric part from filename (e.g., "001" from "001.jpg")
+        preg_match('/(\d+)/', $a_basename, $matches_a);
+        preg_match('/(\d+)/', $b_basename, $matches_b);
+        
+        $num_a = isset($matches_a[1]) ? intval($matches_a[1]) : 0;
+        $num_b = isset($matches_b[1]) ? intval($matches_b[1]) : 0;
+        
+        // If both have numbers, sort by number
+        if ($num_a && $num_b) {
+            return $num_a - $num_b;
+        }
+        
+        // Fallback to natural case-insensitive sort
+        return strnatcasecmp($a_basename, $b_basename);
+    });
+
     $output = '<h3 class="ces-preview-title">'. __('Preview of The Book','ces').'</h3><div id="ces-preview-container">';
     $output .= '<div class="ces-slider-navigation">';
     $output .= '<button id="prev-page" class="ces-slider-button"><i class="fas fa-chevron-left"></i></button>';
@@ -85,40 +96,50 @@ function ces_display_cbz_preview_pages($cbz_file_path) {
     
     $output .= '<div class="ces-cbz-image-wrapper">';
 
-    $image_urls = [];
-
-    //if user vendor or admin or purchased product
+    // If user vendor or admin or purchased product
     if (current_user_can('administrator') || current_user_can('vendor') ) {
-        $image_files = $image_files; // Show all images
+        $display_images = $image_files; // Show all images
     } else {
-        $image_files = array_slice($image_files, 0, 3); // Limit to first 3 image
+        $display_images = array_slice($image_files, 0, 3); // Limit to first 3 images
     }
     
-    if (isset($image_files)) {
-    foreach ($image_files as $image) {
-            $image_name = $image;
-            $image_basename = basename($image_name);
-            $saved_path = $cbz_temp_dir . $image_basename;
-            $saved_url = $cbz_temp_url . $image_basename;
-
-            // Save image to temp directory if it doesn't exist
-            if (!file_exists($saved_path)) {
-                $image_content = $zip->getFromName($image_name);
-                file_put_contents($saved_path, $image_content);
+    foreach ($display_images as $image) {
+        // Read image content directly from ZIP
+        $image_content = $zip->getFromName($image);
+        
+        if ($image_content !== false) {
+            // Get file extension to determine MIME type
+            $extension = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+            $mime_type = '';
+            
+            switch ($extension) {
+                case 'jpg':
+                case 'jpeg':
+                    $mime_type = 'image/jpeg';
+                    break;
+                case 'png':
+                    $mime_type = 'image/png';
+                    break;
+                case 'gif':
+                    $mime_type = 'image/gif';
+                    break;
+                case 'webp':
+                    $mime_type = 'image/webp';
+                    break;
+                default:
+                    $mime_type = 'image/jpeg'; // fallback
             }
-
-            // Save URL to cookie-friendly array
-            $image_urls[] = $saved_url;
-
-            // Output image
+            
+            // Create data URI
+            $base64_image = base64_encode($image_content);
+            $data_uri = 'data:' . $mime_type . ';base64,' . $base64_image;
+            
+            // Output image with data URI
             $output .= '<div class="ces-cbz-image">';
-            $output .= '<img src="' . esc_url($saved_url) . '" />';
+            $output .= '<img src="' . $data_uri . '" alt="Page ' . (array_search($image, $image_files) + 1) . '" />';
             $output .= '</div>';
         }
     }
-
-    // Save image URLs to cookie
-    //setcookie('cbz_preview_images', json_encode($image_urls), time() + 3600, COOKIEPATH, COOKIE_DOMAIN);
     
     $output .= '</div>';
     $output .= '</div>';

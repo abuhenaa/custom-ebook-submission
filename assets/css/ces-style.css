@@ -353,7 +353,7 @@ header.dokan-dashboard-header .ces-form-header p {
     background-color: #e8e8e8;
 }
 #ces-print-book-form button {
-    margin-left: 10px !important;
+    /* margin-left: 10px !important; */
 }
 button#ces-preview-btn {
     margin-left: 0px !important;

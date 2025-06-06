@@ -99,10 +99,13 @@ jQuery(document).ready(function ($) {
     });
 
     // Start observing the container for changes
-    observer.observe(document.getElementById('ces-preview-container'), {
-        childList: true,
-        subtree: true
-    });
+    prevContainer = document.getElementById('ces-preview-container');
+    if (!prevContainer) {
+        observer.observe(prevContainer, {
+            childList: true,
+            subtree: true
+        });
+    }
 
 
     // Preview button click handler
