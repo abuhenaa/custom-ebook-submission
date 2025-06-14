@@ -570,19 +570,96 @@ function ces_display_print_book_info()
     $product_id      = $product->get_id();
     $paperbook_price = get_post_meta( $product_id, 'paperbook_price', true );
     $bookstore_link  = get_post_meta( $product_id, '_ces_bookstore_link', true );
-
+    $personal_website_link = get_post_meta( $product_id, '_ces_personal_website_link', true );
+    
     if ( !empty( $paperbook_price ) ) {
         echo '<div class="ces-print-book-info">';
 
         if ( !empty( $paperbook_price ) ) {
             echo '<strong>' . __( 'Paperbook Price:', 'ces' ). wc_price( $paperbook_price )  . '</strong> ';
         }
-        //buy button
-        if ( !empty( $bookstore_link ) ) {
-            echo '<a href="' . esc_url( $bookstore_link ) . '" class="button ces-buy-button" target="_blank" rel="nofollow">' .
-            __( 'Buy The Paperbook', 'ces' ) . '</a>';
+
+        // Buy button with dropdown options
+        if ( !empty( $bookstore_link ) || !empty( $personal_website_link ) ) {
+            echo '<div class="ces-buy-options-wrapper">';
+            echo '<select id="ces-buy-options-' . $product_id . '" class="ces-buy-options">';
+            echo '<option value="">' . __( 'Choose where to buy', 'ces' ) . '</option>';
+            
+            if ( !empty( $personal_website_link ) ) {
+                echo '<option value="' . esc_url( $personal_website_link ) . '">' . __( 'Personal Website', 'ces' ) . '</option>';
+            }
+            
+            if ( !empty( $bookstore_link ) ) {
+                echo '<option value="' . esc_url( $bookstore_link ) . '">' . __( 'Bookstore', 'ces' ) . '</option>';
+            }
+            
+            echo '</select>';
+            echo '<button type="button" class="button ces-buy-button" onclick="cesBuyPaperbook(' . $product_id . ')">' .
+            __( 'Buy Paperbook', 'ces' ) . '</button>';
+            echo '</div>';
         }
 
         echo '</div>';
     }
+}
+
+// Add JavaScript for buy button functionality
+add_action( 'wp_footer', 'ces_buy_paperbook_script' );
+function ces_buy_paperbook_script() {
+    ?>
+    <script type="text/javascript">
+    function cesBuyPaperbook(productId) {
+        var selectElement = document.getElementById('ces-buy-options-' + productId);
+        var selectedUrl = selectElement.value;
+        
+        if (selectedUrl === '') {
+            alert('<?php echo esc_js( __( 'Please select where you want to buy the paperbook.', 'ces' ) ); ?>');
+            return;
+        }
+        
+        // Open the selected link in a new tab
+        window.open(selectedUrl, '_blank', 'nofollow');
+    }
+    </script>
+    <?php
+}
+
+// Add CSS styling for the buy options
+add_action( 'wp_head', 'ces_buy_options_styles' );
+function ces_buy_options_styles() {
+    ?>
+    <style type="text/css">
+    .ces-buy-options-wrapper {
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .ces-buy-options {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        background-color: #fff;
+        min-width: 150px;
+    }
+    
+    .ces-buy-button {
+        white-space: nowrap;
+    }
+    
+    @media (max-width: 480px) {
+        .ces-buy-options-wrapper {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .ces-buy-options {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+    </style>
+    <?php
 }

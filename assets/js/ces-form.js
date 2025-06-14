@@ -214,7 +214,6 @@ $('.ces-field #ces-vat-price').on('input change', function() {
     
     setBlurHandler($(this));
 });
-
 // Initialize the sortable functionality
 $('#comic-images-preview').sortable({
     items: '.comic-image-item',
@@ -250,11 +249,7 @@ $('#comic-images-preview').on('click', function(e) {
 $('#ces-comic-images').on('change', function(e) {
     const files = e.target.files;
     if (files.length > 0) {
-        // Clear existing files when using file input (to avoid duplicates)
-        uploadedFiles = [];
-        fileCounter = 0;
-        $('#comic-images-preview .comic-image-item').remove();
-        
+        // Don't clear existing files - just add new ones
         handleFiles(files);
     }
 });

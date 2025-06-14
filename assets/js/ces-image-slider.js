@@ -100,7 +100,7 @@ jQuery(document).ready(function ($) {
 
     // Start observing the container for changes
     prevContainer = document.getElementById('ces-preview-container');
-    if (!prevContainer) {
+    if (prevContainer) {
         observer.observe(prevContainer, {
             childList: true,
             subtree: true

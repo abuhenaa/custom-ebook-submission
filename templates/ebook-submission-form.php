@@ -84,18 +84,11 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                     <button type="submit" name="submit_print_book" class="button button-primary"><?php _e('Add Print Book', 'ces'); ?></button>
                     <a href="<?php echo esc_url(home_url()); ?>" class="button"><?php _e('Skip this step', 'ces'); ?></a>
                 </div>
-                <div class="form-buttons">
-                    <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
-                    
-                </div>
+               
             </form>
         </div>
     </div>
 <?php 
-    ob_start(); // Start output buffering
-    include_once CES_PLUGIN_DIR . 'templates/ces-preview-modal.php'; // Include the preview modal
-    $preview_modal = ob_get_clean(); // Get the buffered content
-    echo $preview_modal; // Output the modal HTML
     else: 
 ?>
     <div class="ces-success-message woocommerce-message">
@@ -244,8 +237,19 @@ endif; ?>
             <input type="hidden" name="comic_images_order" id="comic-images-order" />
         </div>
     </div>
+    <?php
+            
+        //ob_start(); // Start output buffering
+        include_once CES_PLUGIN_DIR . 'templates/ces-preview-modal.php'; // Include the preview modal
+        //$preview_modal = ob_get_clean(); // Get the buffered content
+        //return $preview_modal; // Output the modal HTML
+    ?>
 
     <div class="ces-submit">
         <input id="submitBtn" type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'ces'); ?>" />
     </div>
+    <div class="form-buttons">
+        <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
+        
+    </div> 
 </form>
