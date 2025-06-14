@@ -183,7 +183,6 @@ header.dokan-dashboard-header .ces-form-header p {
 
 /* Submit Button */
 .ces-submit {
-    margin-top: 30px;
     grid-column: 1 / span 2;
     text-align: center;
 }
@@ -296,11 +295,11 @@ header.dokan-dashboard-header .ces-form-header p {
     font-size: 0.9em;
     margin-top: 3px;
 }
-
-.form-buttons {
-    margin-top: 20px;
+.ces-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
 }
-
 .form-buttons .button {
     margin-right: 10px;
 }

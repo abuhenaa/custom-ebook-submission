@@ -244,12 +244,12 @@ endif; ?>
         //$preview_modal = ob_get_clean(); // Get the buffered content
         //return $preview_modal; // Output the modal HTML
     ?>
-
-    <div class="ces-submit">
-        <input id="submitBtn" type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'ces'); ?>" />
+    <div class="ces-buttons">
+        <div class="form-buttons">
+            <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
+        </div>
+        <div class="ces-submit">
+            <input id="submitBtn" type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'ces'); ?>" />
+        </div>
     </div>
-    <div class="form-buttons">
-        <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
-        
-    </div> 
 </form>
