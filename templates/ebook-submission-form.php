@@ -132,6 +132,10 @@ endif; ?>
             <label for="ces-isbn"><?php _e('ISBN (optional)', 'ces'); ?>:</label>
             <input type="text" name="isbn" id="ces-isbn" />
         </div>
+        <div class="ces-field">
+            <label for="ces-page-number"><?php _e('Page Number (optional)', 'ces'); ?>:</label>
+            <input type="number" name="page_number" id="ces-page-number" />
+        </div>
 
         <!-- Author selection -->
         <div class="ces-field">

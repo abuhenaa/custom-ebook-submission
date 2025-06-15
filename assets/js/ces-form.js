@@ -11,7 +11,7 @@
             
             // Show the relevant field based on selection
             const selectedType = $(this).val();
-            $('#ces-epub-file, #ces-docx-file, #ces-cbz-file, #ces-comic_images-file').prop('required', false);
+            $('#ces-epub-file, #ces-docx-file, #ces-cbz-file, #ces-comic-images').prop('required', false);
 
             switch(selectedType) {
                 case 'epub':

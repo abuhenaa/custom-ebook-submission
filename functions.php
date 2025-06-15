@@ -408,6 +408,7 @@ function ces_show_book_info_table()
     $series           = get_post_meta( $post->ID, '_ces_series', true );
     $publisher        = get_post_meta( $post->ID, '_ces_publisher', true );
     $isbn             = get_post_meta( $post->ID, '_ces_isbn', true );
+    $page_number      = get_post_meta( $post->ID, '_ces_page_number', true );
     $publication_date = get_post_meta( $post->ID, 'publication_date', true );
 
     // Only show the table if at least one field is not empty
@@ -426,6 +427,9 @@ function ces_show_book_info_table()
         }
         if ( !empty( $isbn ) ) {
             echo '<tr><th>' . __( 'ISBN', 'ces' ) . '</th><td>' . esc_html( $isbn ) . '</td></tr>';
+        }
+        if ( !empty( $page_number ) ) {
+            echo '<tr><th>' . __( 'Page Number', 'ces' ) . '</th><td>' . esc_html( $page_number ) . '</td></tr>';
         }
         if ( !empty( $publication_date ) ) {
             echo '<tr><th>' . __( 'Publication Date', 'ces' ) . '</th><td>' . esc_html( $publication_date ) . '</td></tr>';
@@ -571,8 +575,8 @@ function ces_display_print_book_info()
     $paperbook_price = get_post_meta( $product_id, 'paperbook_price', true );
     $bookstore_link  = get_post_meta( $product_id, '_ces_bookstore_link', true );
     $personal_website_link = get_post_meta( $product_id, '_ces_personal_website_link', true );
-    
-    if ( !empty( $paperbook_price ) ) {
+
+    if ( !empty( $bookstore_link || $personal_website_link ) ) {
         echo '<div class="ces-print-book-info">';
 
         if ( !empty( $paperbook_price ) ) {

@@ -62,6 +62,7 @@ class CES_Form_Handler
         update_post_meta( $product_id, '_ces_series', sanitize_text_field( $_POST[ 'series' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_publisher', sanitize_text_field( $_POST[ 'publisher' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_isbn', sanitize_text_field( $_POST[ 'isbn' ] ?? '' ) );
+        update_post_meta( $product_id, '_ces_page_number', sanitize_text_field( $_POST[ 'page_number' ] ?? '' ) );
         //publication_date
         $publication_date = sanitize_text_field( $_POST[ 'publication_date' ] ?? '' );
         update_post_meta( $product_id, 'publication_date', $publication_date );
