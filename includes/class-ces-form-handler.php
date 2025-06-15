@@ -32,8 +32,8 @@ class CES_Form_Handler
 
          if ($product_id) {
             // Trigger WooCommerce product save action
-            do_action('woocommerce_new_product', $product_id);
-            do_action('woocommerce_update_product', $product_id);
+            do_action('woocommerce_new_product', $product_id,10,2);
+            do_action('woocommerce_update_product', $product_id,10,2);
             
             // Clear Dokan caches
             if (function_exists('dokan_clear_product_cache')) {
