@@ -362,3 +362,379 @@ button#ces-preview-btn {
     align-items: flex-start;
     flex-direction: column;
 }
+
+
+/* Modal Overlay */
+.ces-modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Modal Content Container */
+.ces-modal-content {
+    position: relative;
+    background-color: #ffffff;
+    width: 100%;
+    padding: 20px;
+    max-width: 900px;
+    height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    overflow: hidden;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-30px) scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Modal Header */
+.ces-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.ces-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Close Button */
+.ces-modal-close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ces-modal-close:hover,
+.ces-modal-close:focus {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+/* Modal Controls */
+.ces-modal-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 5px 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* Navigation Buttons */
+.ces-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+    min-width: 50px;
+    height: 44px;
+}
+
+.ces-nav-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
+}
+
+.ces-nav-btn:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(76, 175, 80, 0.3);
+}
+
+.ces-nav-btn:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.6;
+}
+
+.ces-nav-btn .dashicons {
+    font-size: 18px;
+    line-height: 1;
+}
+
+/* Modal Body */
+.ces-modal-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+/* Viewers */
+.ces-viewer {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    flex: 1;
+    overflow: auto;
+    background: #ffffff;
+}
+
+/* EPUB Viewer Specific */
+#ces-epub-viewer {
+    width: 100%;
+    height: 100%;
+    background: #fdfdfd;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* allow vertical scrolling */
+    overflow: auto; /* enable scrolling */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+
+/* Force image sizing inside epub iframe */
+#ces-epub-viewer iframe {
+    width: 100% !important;
+    height: 100% !important;
+    border: none;
+    display: block;
+}
+
+/* CBZ Viewer Specific */
+#ces-cbz-viewer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    position: relative;
+}
+
+#ces-cbz-viewer img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+/* Loading State */
+.ces-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    font-size: 18px;
+    color: #666;
+    background: #f9f9f9;
+    position: relative;
+}
+
+.ces-loading::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Page Counter */
+.ces-page-counter {
+    position: absolute !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: white !important;
+    padding: 8px 16px !important;
+    border-radius: 20px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .ces-modal-content {
+        width: 95%;
+        height: 95vh;
+        margin: 2.5% auto;
+        border-radius: 8px;
+    }
+
+    .ces-modal-header {
+        padding: 15px 20px;
+    }
+
+    .ces-modal-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .ces-modal-controls {
+        padding: 10px 20px;
+        gap: 15px;
+    }
+
+    .ces-nav-btn {
+        padding: 10px 16px;
+        min-width: 44px;
+        height: 40px;
+    }
+
+    #ces-epub-viewer {
+        padding: 0;
+    }
+
+    .ces-page-counter {
+        bottom: 15px !important;
+        right: 15px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .ces-modal-content {
+        width: 98%;
+        height: 98vh;
+        margin: 1% auto;
+    }
+
+    .ces-modal-header {
+        padding: 12px 15px;
+    }
+
+    .ces-modal-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .ces-modal-close {
+        width: 35px;
+        height: 35px;
+        font-size: 24px;
+    }
+
+    .ces-modal-controls {
+        padding: 8px 15px;
+        gap: 10px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .ces-modal-content {
+        background-color: #2c2c2c;
+        color: #ffffff;
+    }
+
+    .ces-modal-controls {
+        background: #3a3a3a;
+        border-bottom-color: #555;
+    }
+
+    .ces-viewer {
+        background: #2c2c2c;
+    }
+
+    #ces-epub-viewer {
+        background: #333333;
+        color: #ffffff;
+    }
+
+    #ces-cbz-viewer {
+        background: #2a2a2a;
+    }
+
+    .ces-loading {
+        color: #ccc;
+        background: #333;
+    }
+}
+
+/* Scrollbar Styling */
+.ces-viewer::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ces-viewer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.ces-viewer::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.ces-viewer::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Focus States for Accessibility */
+.ces-modal-close:focus,
+.ces-nav-btn:focus {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .ces-modal {
+        display: none !important;
+    }
+}
