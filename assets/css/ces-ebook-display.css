@@ -9,7 +9,9 @@
     margin-bottom: 10px;
     font-size: 1.25em;
 }
-
+div#ces-cbz-viewer {
+    text-align: center;
+}
 .ces-controls {
     margin-bottom: 10px;
 }
