@@ -13,6 +13,9 @@
             const selectedType = $(this).val();
             $('#ces-epub-file, #ces-docx-file, #ces-cbz-file, #ces-comic-images').prop('required', false);
 
+            $('#ces-preview-btn').removeClass('ces-convert-btn');
+            $('.ces-convert-btn').attr('id', 'ces-preview-btn');
+            $('#ces-preview-btn').text('Preview Ebook');
             switch(selectedType) {
                 case 'epub':
                     $('#epub-upload-field').show();
@@ -21,6 +24,10 @@
                 case 'docx':
                     $('#docx-upload-field').show();
                     $('#ces-docx-file').prop('required', true);
+                    $('#ces-preview-btn').text('Convert and Preview');
+                    $('#ces-preview-btn').addClass('ces-convert-btn');
+                    //remove id
+                    $('#ces-preview-btn').removeAttr('id');
                     break;
                 case 'cbz':
                     $('#cbz-upload-field').show();
@@ -426,6 +433,33 @@ $('.ces-form').on('submit', function(e) {
             $('#new-author-field').show();
         } else {
             $('#new-author-field').hide();
+        }
+    });
+
+    $('#ces-author').select2({
+        placeholder: "Search for an author...",
+        allowClear: true,
+        width: '100%', // Make it responsive
+        minimumInputLength: 0, // Start searching immediately
+        escapeMarkup: function(markup) {
+            return markup; // Allow HTML in options if needed
+        },
+        templateResult: function(option) {
+            // Custom formatting for dropdown options
+            if (!option.id) {
+                return option.text;
+            }
+            
+            // Highlight "Add New Author" option differently
+            if (option.id === 'new_author') {
+                return $('<span class="new-author-option"><i class="fa fa-plus"></i> ' + option.text + '</span>');
+            }
+            
+            return option.text;
+        },
+        templateSelection: function(option) {
+            // Custom formatting for selected option
+            return option.text;
         }
     });
 

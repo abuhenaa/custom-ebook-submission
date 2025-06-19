@@ -121,6 +121,13 @@ class CES_Form_Handler
 
         // File Handling
         $file_type    = sanitize_text_field( $_POST[ 'file_type' ] ?? '' );
+        
+        // update converted file URL if docx to epub conversion is done
+        $docx_to_epub_file_url = isset( $_POST[ '_ces_ebook_file' ] ) ? esc_url_raw( $_POST[ '_ces_ebook_file' ] ) : '';
+        if( $file_type == 'docx' ){
+            update_post_meta( $product_id, '_ces_ebook_file', $docx_to_epub_file_url );
+        }
+
         $file_handler = new CES_File_Handler( $product_id );
         $file_handler->handle_upload( $_FILES, $file_type );
 

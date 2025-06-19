@@ -52,27 +52,86 @@
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
   background-color: rgba(0, 0, 0, 0.7);
 }
 
 .ces-modal-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 1200px;
+  height: 90%;
   background-color: #fefefe;
-  margin: 5% auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 80%;
-  max-width: 1000px;
-  max-height: 90vh;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
-.ces-close {
+.ces-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-shrink: 0;
+}
+
+.ces-modal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#ces-epub-viewer {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  position: relative;
+  /* Force single column layout */
+  background: white;
+}
+
+/* Override EPUB.js default styles to prevent multi-column layout */
+#ces-epub-viewer iframe {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ces-close,
+.ces-modal-close {
   color: #aaa;
-  float: right;
   font-size: 28px;
   font-weight: bold;
   cursor: pointer;
+  line-height: 1;
+}
+
+.ces-modal-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.ces-nav-btn {
+  padding: 8px 12px;
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.ces-nav-btn:hover {
+  background: #e1e1e1;
+}
+
+.ces-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 #ces-preview-container {
@@ -85,6 +144,25 @@
 
 .ces-preview-container {
   margin: 15px 0;
+}
+
+/* Additional styles to ensure proper EPUB rendering */
+.ces-viewer {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Hide other viewer when not in use */
+#ces-cbz-viewer {
+  display: none;
+}
+
+#ces-epub-viewer.active {
+  display: block;
+}
+
+#ces-cbz-viewer.active {
+  display: block;
 }
 
 /* CBZ image styling */

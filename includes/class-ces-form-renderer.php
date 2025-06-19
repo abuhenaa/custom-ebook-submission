@@ -15,9 +15,14 @@ class CES_Form_Renderer {
     //enqueue assets
     public function enqueue_assets() {
         wp_enqueue_style('ces-style', CES_PLUGIN_URL . 'assets/css/ces-style.css');
+        wp_enqueue_style('select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css');
+        //select 2
+
         wp_enqueue_script('ces-form', CES_PLUGIN_URL . 'assets/js/ces-scripts.js', ['jquery'], null, true);
         wp_enqueue_script('jquery-ui-sortable');
         wp_enqueue_script('ces-form-script', CES_PLUGIN_URL . '/assets/js/ces-form.js', array('jquery', 'jquery-ui-sortable'), '1.0.0', true);
+        //select2
+        wp_enqueue_script( 'select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js', 'jquery', '4.1.0', false);
         wp_localize_script('ces-form-script', 'ces_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce'    => wp_create_nonce('ces_nonce')

@@ -240,6 +240,7 @@ endif; ?>
             </div>
             <input type="hidden" name="comic_images_order" id="comic-images-order" />
         </div>
+        <input type="hidden" name="_ces_ebook_file" id="converted_epub_file" value="" />
     </div>
     <?php
             

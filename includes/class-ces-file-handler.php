@@ -34,8 +34,6 @@ class CES_File_Handler{
             case 'epub':
                 $processed = $this->handle_epub_upload($files[$file_key]);
                 break;
-            case 'docx':
-                return $this->handle_docx_upload($files[$file_key]);
             case 'cbz':
                 return $this->handle_cbz_upload($files[$file_key]);
             case 'comic_images':
@@ -90,23 +88,6 @@ class CES_File_Handler{
         }
         return $processed;
         
-    }
-
-    /**
-     * Handle DOCX file upload
-     */
-    private function handle_docx_upload($file) {
-        if (!function_exists('wp_handle_upload')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
-        }
-        
-        $uploaded = wp_handle_upload($file, ['test_form' => false]);
-        
-        if (isset($uploaded['url'])) {
-            return $this->convert_docx_to_epub($uploaded['file']);
-        }
-        
-        return null;
     }
 
     /**
@@ -246,22 +227,6 @@ class CES_File_Handler{
             }
         }
         
-        // // If we have an image order array, reorder the files
-        // if ($image_order && is_array($image_order)) {
-        //     // Create a new ordered array
-        //     $ordered_files = [];
-        //     foreach ($image_order as $index => $original_index) {
-        //         if (isset($image_files[$original_index])) {
-        //             $ordered_files[] = $image_files[$original_index];
-        //         }
-        //     }
-            
-        //     // If we have ordered files, replace the original array
-        //     if (!empty($ordered_files)) {
-        //         $image_files = $ordered_files;
-        //     }
-        // }
-        
         // Rename files sequentially based on their new order
         foreach ($image_files as $index => $file_info) {
             $ext = strtolower(pathinfo($file_info['temp_path'], PATHINFO_EXTENSION));
@@ -381,51 +346,6 @@ class CES_File_Handler{
             'file_path' => $destination,
             'metadata'  => $metadata,
          ];
-    }
-
-    private function convert_docx_to_epub( $file_path )
-    {
-        $upload_dir = wp_upload_dir();
-        $books_dir  = $upload_dir[ 'basedir' ] . '/books';
-
-        // Create books folder if not exists
-        if ( !file_exists( $books_dir ) ) {
-            wp_mkdir_p( $books_dir );
-        }
-
-        $filename = basename($file_path);
-        $epub_filename = str_replace( '.docx', '.epub', $filename );
-        $epub_output = $books_dir . '/' . $epub_filename;
-        
-        // Convert DOCX to EPUB using pandoc
-        $cmd = "pandoc " . escapeshellarg( $file_path ) . " -o " . escapeshellarg( $epub_output );
-        shell_exec( $cmd );
-
-        // Check if conversion succeeded
-        if ( file_exists( $epub_output ) ) {
-            // Extract basic metadata
-            $title = get_the_title($this->product_id) ?: pathinfo($filename, PATHINFO_FILENAME);
-            $author = get_the_author_meta('display_name', get_post_field('post_author', $this->product_id)) ?: '';
-            
-            $metadata = [
-                'title' => $title,
-                'author' => $author
-            ];
-            
-            // Save file metadata
-            update_post_meta( $this->product_id, '_ces_ebook_file', esc_url_raw( $upload_dir['baseurl'] . '/books/' . $epub_filename ) );
-            update_post_meta( $this->product_id, '_ces_ebook_file_path', $epub_output );
-            update_post_meta( $this->product_id, '_ces_ebook_title', sanitize_text_field( $metadata['title'] ) );
-            update_post_meta( $this->product_id, '_ces_ebook_author', sanitize_text_field( $metadata['author'] ) );
-            
-            return [
-                'file_url' => $upload_dir['baseurl'] . '/books/' . $epub_filename,
-                'file_path' => $epub_output,
-                'metadata' => $metadata
-            ];
-        }
-        
-        return null;
     }
 
     private function process_cbz( $file_path )

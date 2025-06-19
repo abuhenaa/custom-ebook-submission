@@ -38,6 +38,7 @@ function ces_init_plugin(){
     new CES_Form_Renderer();
     new CES_Form_Handler();
     new CES_Tag_Blacklist();
-    new CES_Ebook_Display();
+    new CES_Ebook_Display(); 
+    new CES_EPUB_Converter();
 }
 add_action( 'plugins_loaded', 'ces_init_plugin' );

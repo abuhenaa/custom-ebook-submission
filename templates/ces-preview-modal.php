@@ -7,7 +7,7 @@ const modalHTML = `
     <div class="ces-modal-content">
         <div class="ces-modal-header">
             <h2 id="ces-preview-title"><?php _e( 'eBook Preview', 'ces' ); ?></h2>
-           
+
             <div class="ces-modal-controls">
                 <button id="ces-prev-page" class="ces-nav-btn" title="<?php _e( 'Previous Page', 'ces' ); ?>">
                     <span class="dashicons dashicons-arrow-left-alt2"></span>
@@ -50,7 +50,7 @@ function initPreviewFunctionality() {
 
     function handlePreviewClick() {
         const fileExtension = jQuery('#ces-file-type').val().toLowerCase();
-        
+
         let file = null;
         let fileUrl = "";
         let fileType = "";
@@ -78,14 +78,77 @@ function initPreviewFunctionality() {
         } else if (fileExtension === 'comic_images') {
             previewComicImages();
             return;
+        } else if( fileExtension === 'docx'){
+            handleDocxConversion();
+            return;
         } else {
-            alert('<?php _e( "Preview is only available for EPUB, CBZ files and Comic Images", "ces" ); ?>');
+            alert('<?php _e( "Unsupported file type for preview", "ces" ); ?>');
             return;
         }
 
         previewEbook(fileUrl, fileType);
     }
+    // Handle DOCX to EPUB conversion
+    function handleDocxConversion() {
+        // Get the file input
+        var fileInput = $('input[type="file"][accept=".docx"]');
 
+        var file = fileInput[0].files[0];
+        if (!file) {
+            alert('Please select a DOCX file first.');
+            return;
+        }
+
+        // Validate file type
+        if (!file.name.toLowerCase().endsWith('.docx')) {
+            alert('Please select a valid DOCX file.');
+            return;
+        }
+
+        // Show loading state
+        var originalText = $('.ces-convert-btn').text();
+        $('.ces-convert-btn').text('<?php _e( "Converting...", "ces" ); ?>');
+        // Show loading indicator if exists
+        $('.conversion-loading').show();
+
+        // Prepare form data
+        var formData = new FormData();
+        formData.append('action', 'convert_docx_to_epub');
+        formData.append('docx_file', file);
+        formData.append('nonce', ces_ajax.nonce);
+
+        // Make AJAX request
+        $.ajax({
+            url: ces_ajax.ajax_url,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    var fileUrl = response.data.file_url;
+                    // Update hidden field with file URL
+                    $('input[name="_ces_ebook_file"]').val(fileUrl);
+
+                    // Show success message
+                    alert(response.data.message);
+                    $('.ces-convert-btn').text(originalText);
+                    // NOW open the preview modal with the converted file
+                    previewEbook(fileUrl, 'docx');
+
+                } else {
+                    alert(response.data.message || 'Conversion failed');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                alert('An error occurred during conversion. Please try again.');
+            },
+            complete: function() {
+                $('.conversion-loading').hide();
+            }
+        });
+    }
     // Handle keyboard events for navigation
     jQuery(document).on('keydown', function(event) {
         const modal = jQuery('#ces-preview-modal');
@@ -107,7 +170,7 @@ function initPreviewFunctionality() {
         // Reset the viewers
         const epubViewer = jQuery('#ces-epub-viewer');
         const cbzViewer = jQuery('#ces-cbz-viewer');
-        
+
         epubViewer.hide().html('<div class="ces-loading">Loading EPUB...</div>');
         cbzViewer.hide().html('<div class="ces-loading">Loading CBZ...</div>');
 
@@ -119,158 +182,140 @@ function initPreviewFunctionality() {
             initEpubViewerFromUrl(fileUrl);
         } else if (previewType === 'cbz') {
             initCbzViewerFromUrl(fileUrl);
+        } else if( previewType === 'docx'){
+            initEpubViewerFromUrl(fileUrl);
         } else {
-            alert('<?php _e( "Preview is only available for EPUB and CBZ files", "ces" ); ?>');
+            alert('<?php _e( "Preview is not available", "ces" ); ?>');
             closeModal();
         }
     };
 
-    function initEpubViewerFromUrl(fileUrl) {
-        // Show the EPUB viewer
-        const epubViewer = jQuery('#ces-epub-viewer');
-        epubViewer.show();
+function initEpubViewerFromUrl(fileUrl) {
+    // Show the EPUB viewer
+    const epubViewer = jQuery('#ces-epub-viewer');
+    epubViewer.show();
 
-        // Method 1: Try with ArrayBuffer (more reliable for local files)
-        const epubField = jQuery('#ces-epub-file')[0];
-        const file = epubField.files[0];
-        
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    // Create book from ArrayBuffer
-                    book = ePub(e.target.result);
-                    
-                    // Generate rendition
-                    rendition = book.renderTo('ces-epub-viewer', {
-                        width: '100%',
-                        height: '100%',
-                        spread: 'none',
-                        allowScriptedContent: true
-                    });
+    var fileType = jQuery('#ces-file-type').val().toLowerCase();
+    convertedFileUrl = jQuery('#converted_epub_file').val();
 
-                    rendition.themes.register('fix-images', {
-                        'body': {
-                            'display': 'flex',
-                            'justify-content': 'center',
-                            'padding': '20px',
-                            'margin': '0 auto',
-                            'height': 'auto',
-                            'box-sizing': 'border-box'
-                        },
-                        'img': {
-                            'max-width': '100%',
-                            'height': 'auto',
-                            'object-fit': 'contain'
-                        }
-                    });
-                    rendition.themes.select('fix-images');
-
-
-                    // Display the first page
-                    rendition.display().then(() => {
-                        jQuery('.ces-loading').remove();
-                        
-                        // Try to generate locations for navigation
-                        return book.locations.generate(1024);
-                    }).then((locations) => {
-                        totalPages = locations.length;
-                        currentPage = 1;
-                        updateNavButtons();
-                    }).catch(error => {
-                        // Even if locations fail, we can still navigate
-                        totalPages = 100; // Fallback
-                        currentPage = 1;
-                        updateNavButtons();
-                        jQuery('.ces-loading').remove();
-                    });
-
-                    // Listen for page changes
-                    rendition.on('relocated', function(location) {
-                        if (book.locations && book.locations.locationFromCfi) {
-                            currentPage = book.locations.locationFromCfi(location.start.cfi) || currentPage;
-                            updateNavButtons();
-                        }
-                    });
-
-                    // Handle rendition errors
-                    rendition.on('rendered', function() {
-                        jQuery('.ces-loading').remove();
-                    });
-
-                } catch (error) {
-                    console.error('Error initializing EPUB viewer:', error);
-                    // Fallback to blob URL method
-                    initEpubWithBlobUrl(fileUrl);
-                }
-            };
-            
-            reader.onerror = function(error) {
-                console.error('FileReader error:', error);
-                // Fallback to blob URL method
-                initEpubWithBlobUrl(fileUrl);
-            };
-            
-            // Read file as ArrayBuffer
-            reader.readAsArrayBuffer(file);
-        } else {
-            // Fallback to blob URL method
-            initEpubWithBlobUrl(fileUrl);
-        }
+    // If it's DOCX type, use the converted EPUB URL directly
+    if (fileType === 'docx') {
+        initEpubFromUrl(convertedFileUrl);
+        return;
     }
 
-    // Fallback method using blob URL
-    function initEpubWithBlobUrl(fileUrl) {
-        
-        try {
-            // Create a new book from URL
-            book = ePub(fileUrl, {
-                openAs: 'epub',
-                encoding: 'binary'
-            });
+    // For local files, use FileReader
+    const epubField = jQuery('#ces-epub-file')[0];
+    const file = epubField.files[0];
 
-            // Generate rendition
-            rendition = book.renderTo('ces-epub-viewer', {
-                width: '600px',
-                height: '100%',
-                spread: 'none',
-                allowScriptedContent: true
-            });
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            initEpubFromData(e.target.result);
+        };
 
-            // Display the first page
-            rendition.display().then(() => {
-                jQuery('.ces-loading').remove();
-                
-                // Set basic navigation
-                totalPages = 100; // Fallback
-                currentPage = 1;
-                updateNavButtons();
-                
-                // Try to generate locations
-                return book.ready;
-            }).then(() => {
-                return book.locations.generate(1024);
-            }).then((locations) => {
-                totalPages = locations.length;
-                updateNavButtons();
-            }).catch(error => {
-                console.error('Error with blob URL method:', error);
-                jQuery('#ces-epub-viewer').html('<div class="ces-loading">Error loading EPUB file. This might be due to browser security restrictions.</div>');
-            });
+        reader.onerror = function(error) {
+            console.error('FileReader error:', error);
+            jQuery('.ces-loading').remove();
+        };
 
-            // Listen for page changes
-            rendition.on('relocated', function(location) {
-                if (book.locations && book.locations.locationFromCfi) {
-                    currentPage = book.locations.locationFromCfi(location.start.cfi) || currentPage;
-                    updateNavButtons();
-                }
-            });
-
-        } catch (error) {
-            console.error('Error with blob URL method:', error);
-            jQuery('#ces-epub-viewer').html('<div class="ces-loading">Error loading EPUB file. Browser may not support this file format.</div>');
-        }
+        // Read file as ArrayBuffer
+        reader.readAsArrayBuffer(file);
+    } else if (fileUrl) {
+        // If no local file but fileUrl is provided, use the URL
+        initEpubFromUrl(fileUrl);
+    } else {
+        console.error('No file or URL provided');
+        jQuery('.ces-loading').remove();
     }
+}
+
+function initEpubFromUrl(url) {
+    try {
+        // Create book from URL
+        book = ePub(url);
+        setupEpubRendition();
+    } catch (error) {
+        console.error('Error initializing EPUB from URL:', error);
+        jQuery('.ces-loading').remove();
+    }
+}
+
+function initEpubFromData(arrayBuffer) {
+    try {
+        // Create book from ArrayBuffer
+        book = ePub(arrayBuffer);
+        setupEpubRendition();
+    } catch (error) {
+        console.error('Error initializing EPUB from data:', error);
+        jQuery('.ces-loading').remove();
+    }
+}
+function setupEpubRendition() {
+    const viewerElement = document.getElementById('ces-epub-viewer');
+    const rect = viewerElement.getBoundingClientRect();
+
+    rendition = book.renderTo('ces-epub-viewer', {
+        width: '100%', //rect.width || 800,
+        height: '100%', //rect.height || 600,
+        spread: 'none',
+        flow: 'scrolled-doc',
+    });
+
+    // Register single-page theme
+    rendition.themes.register('image-fix', {
+         'body': {
+            'display': 'flex',
+            'justify-content': 'center',
+            'padding': '10px',
+            'margin': '0 auto',
+            'height': 'auto',
+            'box-sizing': 'border-box'
+        },
+        'img': {
+            'max-width': '100%',
+            'height': 'auto',
+            'object-fit': 'contain',
+        }
+    });
+
+    rendition.themes.select('image-fix');
+
+    // Display and force proper layout
+    rendition.display().then(() => {
+        jQuery('.ces-loading').remove();
+
+        // Force resize to fix layout
+        setTimeout(() => {
+            rendition.resize();
+        }, 100);
+
+        return book.locations.generate(1024);
+    }).then((locations) => {
+        totalPages = locations.length;
+        currentPage = 1;
+        updateNavButtons();
+    }).catch(error => {
+        totalPages = 100;
+        currentPage = 1;
+        updateNavButtons();
+        jQuery('.ces-loading').remove();
+    });
+
+    // Listen for page changes
+    rendition.on('relocated', function(location) {
+        if (book.locations && book.locations.locationFromCfi) {
+            currentPage = book.locations.locationFromCfi(location.start.cfi) || currentPage;
+            updateNavButtons();
+        }
+    });
+
+    // Handle rendition errors
+    rendition.on('rendered', function() {
+        jQuery('.ces-loading').remove();
+    });
+}
+
 
     function initCbzViewerFromUrl(fileUrl) {
         // Show the CBZ viewer
@@ -354,7 +399,7 @@ function initPreviewFunctionality() {
             .on('load', function() {
                 updateNavButtons();
             });
-        
+
         cbzViewer.append(img);
     }
 
