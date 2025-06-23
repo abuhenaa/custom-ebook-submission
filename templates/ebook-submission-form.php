@@ -253,6 +253,9 @@ endif; ?>
         <div class="form-buttons">
             <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
         </div>
+        <div class="form-buttons ces-docx-prev-btn" style="display:none;">
+            <button type="button" id="ces-doc-epub-preview-btn" class="ces-doc-epub-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
+        </div>
         <div class="ces-submit">
             <input id="submitBtn" type="submit" name="ces_submit_form" value="<?php esc_attr_e('Submit eBook', 'ces'); ?>" />
         </div>

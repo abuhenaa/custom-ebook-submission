@@ -106,7 +106,6 @@ function initPreviewFunctionality() {
         }
 
         // Show loading state
-        var originalText = $('.ces-convert-btn').text();
         $('.ces-convert-btn').text('<?php _e( "Converting...", "ces" ); ?>');
         // Show loading indicator if exists
         $('.conversion-loading').show();
@@ -132,9 +131,11 @@ function initPreviewFunctionality() {
 
                     // Show success message
                     alert(response.data.message);
-                    $('.ces-convert-btn').text(originalText);
-                    // NOW open the preview modal with the converted file
-                    previewEbook(fileUrl, 'docx');
+                    //hide the ces-preview-btn and add new preview button with id #ces-doc-epub-preview-btn after
+                     
+                    $('.ces-docx-prev-btn').show();
+                    $('.ces-preview-btn').parent('.form-buttons').hide();
+
 
                 } else {
                     alert(response.data.message || 'Conversion failed');
@@ -146,6 +147,7 @@ function initPreviewFunctionality() {
             },
             complete: function() {
                 $('.conversion-loading').hide();
+
             }
         });
     }
@@ -161,6 +163,14 @@ function initPreviewFunctionality() {
         } else if (event.key === 'Escape') {
             closeModal();
         }
+    });
+
+    
+    
+    // Handle preview button click for DOCX
+    // This button is added dynamically after conversion
+    $('#ces-doc-epub-preview-btn').on('click', function() {
+        previewEbook($('input[name="_ces_ebook_file"]').val(), 'docx');
     });
 
     // Main function to preview file by URL/path
@@ -190,7 +200,7 @@ function initPreviewFunctionality() {
         }
     };
 
-function initEpubViewerFromUrl(fileUrl) {
+async function initEpubViewerFromUrl(fileUrl) {
     // Show the EPUB viewer
     const epubViewer = jQuery('#ces-epub-viewer');
     epubViewer.show();
@@ -200,7 +210,8 @@ function initEpubViewerFromUrl(fileUrl) {
 
     // If it's DOCX type, use the converted EPUB URL directly
     if (fileType === 'docx') {
-        initEpubFromUrl(convertedFileUrl);
+        await initEpubFromUrl(fileUrl);
+        console.log('DOCX file preview initialized directly from converted EPUB URL:', fileUrl);
         return;
     }
 
@@ -208,7 +219,7 @@ function initEpubViewerFromUrl(fileUrl) {
     const epubField = jQuery('#ces-epub-file')[0];
     const file = epubField.files[0];
 
-    if (file) {
+    if (file && fileType == 'epub') {
         const reader = new FileReader();
         reader.onload = function(e) {
             initEpubFromData(e.target.result);
@@ -221,23 +232,34 @@ function initEpubViewerFromUrl(fileUrl) {
 
         // Read file as ArrayBuffer
         reader.readAsArrayBuffer(file);
-    } else if (fileUrl) {
+    } else if (fileUrl && fileType == 'docx') {
+        console.log('condition met');
         // If no local file but fileUrl is provided, use the URL
-        initEpubFromUrl(fileUrl);
+       await initEpubFromUrl(fileUrl);
     } else {
         console.error('No file or URL provided');
         jQuery('.ces-loading').remove();
     }
 }
 
-function initEpubFromUrl(url) {
+async function initEpubFromUrl(url) {
     try {
-        // Create book from URL
-        book = ePub(url);
+        // Fetch the EPUB file as a blob
+        const response = await fetch(url);
+        const blob = await response.blob();
+        
+        // Create a blob URL
+        const blobUrl = URL.createObjectURL(blob);
+        console.log('Blob URL created:', blobUrl);
+        // Use the blob URL with ePub.js
+        book = ePub(blobUrl, {
+            restore: true,
+            openAs: 'epub'
+        });
+        
         setupEpubRendition();
     } catch (error) {
-        console.error('Error initializing EPUB from URL:', error);
-        jQuery('.ces-loading').remove();
+        console.error('Error:', error);
     }
 }
 
@@ -502,7 +524,7 @@ function setupEpubRendition() {
 
     // Update the existing goToPrevPage and goToNextPage functions to handle comic images
     function goToPrevPage() {
-        if (previewType === 'epub') {
+        if (previewType === 'epub' || previewType === 'docx') {
             if (rendition) {
                 rendition.prev();
             }
@@ -518,7 +540,7 @@ function setupEpubRendition() {
     }
 
     function goToNextPage() {
-        if (previewType === 'epub') {
+        if (previewType === 'epub' || previewType === 'docx') {
             if (rendition) {
                 rendition.next();
             }
@@ -591,4 +613,5 @@ if (jQuery('#ces-preview-modal').length === 0) {
 }
 
 });
+
 </script>

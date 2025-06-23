@@ -48,8 +48,9 @@ class CES_EPUB_Converter {
         
         if ($result) {
             wp_send_json_success(array(
-                'message' => 'File converted successfully!',
-                'file_url' => $result['file_url']
+                'message' => 'File converted successfully. Click the preview button to view your eBook.',
+                'file_url' => $result['file_url'],
+                'file_path' => $result['file_path'],
             ));
         } else {
             wp_send_json_error(array('message' => 'Conversion failed. Please try again.'));
@@ -70,7 +71,12 @@ class CES_EPUB_Converter {
         $epub_output = $books_dir . '/' . $epub_filename;
         
         // Convert DOCX to EPUB using pandoc
-        $cmd = "pandoc " . escapeshellarg($file_path) . " -o " . escapeshellarg($epub_output);
+        $cmd = "pandoc " . escapeshellarg($file_path) . 
+                " -o " . escapeshellarg($epub_output) .
+                " --extract-media=./media";
+                " --s" .
+                " --epub-chapter-level=0" .
+                " --no-highlight" .
         shell_exec($cmd);
         
         // Check if conversion succeeded

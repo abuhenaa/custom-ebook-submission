@@ -20,22 +20,26 @@
                 case 'epub':
                     $('#epub-upload-field').show();
                     $('#ces-epub-file').prop('required', true);
+                    $('.ces-docx-prev-btn').hide();
+                    $('#ces-preview-btn').parent().show();
                     break;
                 case 'docx':
                     $('#docx-upload-field').show();
                     $('#ces-docx-file').prop('required', true);
-                    $('#ces-preview-btn').text('Convert and Preview');
+                    $('#ces-preview-btn').text('Convert Into EPUB');
                     $('#ces-preview-btn').addClass('ces-convert-btn');
-                    //remove id
-                    $('#ces-preview-btn').removeAttr('id');
                     break;
                 case 'cbz':
                     $('#cbz-upload-field').show();
                     $('#ces-cbz-file').prop('required', true);
+                    $('.ces-docx-prev-btn').hide();                    
+                    $('#ces-preview-btn').parent().show();
                     break;
                 case 'comic_images':
                     $('#comic-images-upload-field').show();
                     $('#ces-comic-images').prop('required', true);
+                    $('.ces-docx-prev-btn').hide();                    
+                    $('#ces-preview-btn').parent().show();
                     break;
             }
         });
