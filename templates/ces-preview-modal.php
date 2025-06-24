@@ -278,8 +278,8 @@ function setupEpubRendition() {
     const rect = viewerElement.getBoundingClientRect();
 
     rendition = book.renderTo('ces-epub-viewer', {
-        width: rect.width || 800,
-        height: rect.height || 600,
+        width: "100%", // rect.width || 800,
+        height: "100%", //rect.height || 600,
         spread: 'none',
         flow: 'scrolled-doc',
     });
