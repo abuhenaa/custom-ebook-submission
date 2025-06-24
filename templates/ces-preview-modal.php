@@ -205,13 +205,15 @@ async function initEpubViewerFromUrl(fileUrl) {
     const epubViewer = jQuery('#ces-epub-viewer');
     epubViewer.show();
 
+    // Show the modal
+    jQuery('#ces-preview-modal').show();
+
     var fileType = jQuery('#ces-file-type').val().toLowerCase();
     convertedFileUrl = jQuery('#converted_epub_file').val();
 
     // If it's DOCX type, use the converted EPUB URL directly
     if (fileType === 'docx') {
         await initEpubFromUrl(fileUrl);
-        console.log('DOCX file preview initialized directly from converted EPUB URL:', fileUrl);
         return;
     }
 
@@ -233,7 +235,6 @@ async function initEpubViewerFromUrl(fileUrl) {
         // Read file as ArrayBuffer
         reader.readAsArrayBuffer(file);
     } else if (fileUrl && fileType == 'docx') {
-        console.log('condition met');
         // If no local file but fileUrl is provided, use the URL
        await initEpubFromUrl(fileUrl);
     } else {
@@ -250,7 +251,6 @@ async function initEpubFromUrl(url) {
         
         // Create a blob URL
         const blobUrl = URL.createObjectURL(blob);
-        console.log('Blob URL created:', blobUrl);
         // Use the blob URL with ePub.js
         book = ePub(blobUrl, {
             restore: true,
@@ -278,8 +278,8 @@ function setupEpubRendition() {
     const rect = viewerElement.getBoundingClientRect();
 
     rendition = book.renderTo('ces-epub-viewer', {
-        width: '100%', //rect.width || 800,
-        height: '100%', //rect.height || 600,
+        width: rect.width || 800,
+        height: rect.height || 600,
         spread: 'none',
         flow: 'scrolled-doc',
     });
@@ -287,12 +287,13 @@ function setupEpubRendition() {
     // Register single-page theme
     rendition.themes.register('image-fix', {
          'body': {
+            'width': '100%',
+            'max-width': '100%',
             'display': 'flex',
             'justify-content': 'center',
             'padding': '10px',
             'margin': '0 auto',
             'height': 'auto',
-            'box-sizing': 'border-box'
         },
         'img': {
             'max-width': '100%',
@@ -305,13 +306,11 @@ function setupEpubRendition() {
 
     // Display and force proper layout
     rendition.display().then(() => {
-        jQuery('.ces-loading').remove();
-
-        // Force resize to fix layout
+        rendition.resized = false; // Reset resized flag
         setTimeout(() => {
             rendition.resize();
-        }, 100);
-
+        }, 100); // Delay to ensure layout is ready
+       
         return book.locations.generate(1024);
     }).then((locations) => {
         totalPages = locations.length;
@@ -335,6 +334,7 @@ function setupEpubRendition() {
     // Handle rendition errors
     rendition.on('rendered', function() {
         jQuery('.ces-loading').remove();
+        
     });
 }
 

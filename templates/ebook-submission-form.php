@@ -117,6 +117,14 @@ endif; ?>
             <input type="text" name="subtitle" id="ces-subtitle" />
         </div>
         <div class="ces-field">
+            <label for="ces-description"><?php _e('Description', 'ces'); ?>: <span class="ces-required">*</span></label>
+            <textarea name="description" id="ces-description" rows="5" required></textarea>
+        </div>
+        <div class="ces-field">
+            <label for="ces-short-description"><?php _e('Short Description', 'ces'); ?>:</label>
+            <textarea name="short_description" id="ces-short-description" rows="3"></textarea>
+        </div>
+        <div class="ces-field">
             <label for="ces-series"><?php _e('Series (optional)', 'ces'); ?>:</label>
             <input type="text" name="series" id="ces-series" />
         </div>

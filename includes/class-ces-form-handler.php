@@ -57,6 +57,19 @@ class CES_Form_Handler
             wp_set_object_terms( $product_id, $tags, 'product_tag' );
         }
 
+        //description update
+        $description = isset( $_POST[ 'description' ] ) ? wp_kses_post( $_POST[ 'description' ] ) : '';
+        wp_update_post( [
+            'ID'           => $product_id,
+            'post_content' => $description,
+        ] );
+        //short description update
+        $short_description = isset( $_POST[ 'short_description' ] ) ? wp_kses_post( $_POST[ 'short_description' ] ) : '';
+        wp_update_post( [
+            'ID'                => $product_id,
+            'post_excerpt'      => $short_description,
+        ] );
+
         // Save additional meta
         update_post_meta( $product_id, '_ces_subtitle', sanitize_text_field( $_POST[ 'subtitle' ] ?? '' ) );
         update_post_meta( $product_id, '_ces_series', sanitize_text_field( $_POST[ 'series' ] ?? '' ) );
