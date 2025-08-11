@@ -725,3 +725,7 @@ button#ces-preview-btn {
         display: none !important;
     }
 }
+/* dokan dashboard styles */
+.dokan-dashboard-content .product-edit-new-container.product-edit-container {
+    display: none !important;
+}
