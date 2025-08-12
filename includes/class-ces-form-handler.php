@@ -40,8 +40,12 @@ class CES_Form_Handler
                 dokan_clear_product_cache();
             }
             
-            // Trigger Dokan product update hooks
-            do_action('dokan_new_product_added', $product_id, get_current_user_id());
+            // Trigger Dokan product update hooks$product = wc_get_product($product_id);
+            $product = wc_get_product($product_id);
+            if ($product) {
+                $product_data = $product->get_data(); // Get product data as array
+                do_action('dokan_new_product_added', $product_id, $product_data);
+            }
         }
 
         // Code to assign both main category and subcategory to the product
