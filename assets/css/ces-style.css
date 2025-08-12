@@ -736,6 +736,6 @@ button#ces-preview-btn {
     height: 50px !important;
 }
 
-button#ces-preview-btn {
+.dokan-dashboard-content button#ces-preview-btn {
     padding: 15px;
 }
