@@ -15,7 +15,7 @@
 
             $('#ces-preview-btn').removeClass('ces-convert-btn');
             $('.ces-convert-btn').attr('id', 'ces-preview-btn');
-            $('#ces-preview-btn').text('Preview Ebook');
+            $('#ces-preview-btn').text(ces_ajax.strings.preview_ebook);
             switch(selectedType) {
                 case 'epub':
                     $('#epub-upload-field').show();
@@ -26,7 +26,7 @@
                 case 'docx':
                     $('#docx-upload-field').show();
                     $('#ces-docx-file').prop('required', true);
-                    $('#ces-preview-btn').text('Convert Into EPUB');
+                    $('#ces-preview-btn').text(ces_ajax.strings.convert_into_epub);
                     $('#ces-preview-btn').addClass('ces-convert-btn');
                     break;
                 case 'cbz':
@@ -72,7 +72,7 @@ $('#ces-cover-image').on('change', function () {
                     Math.abs(ratio - expectedRatio) < tolerance;
 
                 if (!isValid) {
-                    $('<div id="cover-image-error" style="color: red; margin-top: 5px;">Please upload an image with a 2:3 aspect ratio</div>')
+                    $('<div id="cover-image-error" style="color: red; margin-top: 5px;">' + ces_ajax.strings.please_upload_image_ratio + '</div>')
                         .insertAfter($preview);
                     $('#ces-cover-image').val('');
                     return;
@@ -83,7 +83,7 @@ $('#ces-cover-image').on('change', function () {
             };
 
             img.onerror = function () {
-                $('<div id="cover-image-error" style="color: red; margin-top: 5px;">Invalid image file.</div>')
+                $('<div id="cover-image-error" style="color: red; margin-top: 5px;">' + ces_ajax.strings.invalid_image_file + '</div>')
                     .insertAfter($preview);
                 $('#ces-cover-image').val('');
             };
@@ -441,7 +441,7 @@ $('.ces-form').on('submit', function(e) {
     });
 
     $('#ces-author').select2({
-        placeholder: "Search for an author...",
+        placeholder: ces_ajax.strings.search_for_author,
         allowClear: true,
         width: '100%', // Make it responsive
         minimumInputLength: 0, // Start searching immediately
@@ -478,12 +478,12 @@ $('.ces-form').on('submit', function(e) {
         if (!parentId) {
             // If no category selected, disable and reset subcategory select
             subcategorySelect.prop('disabled', true);
-            subcategorySelect.html('<option value="">' + 'Select a main category first' + '</option>');
+            subcategorySelect.html('<option value="">' + ces_ajax.strings.select_main_category_first + '</option>');
             return;
         }
         
         // Show loading state
-        subcategorySelect.html('<option value="">Loading...</option>');
+        subcategorySelect.html('<option value="">' + ces_ajax.strings.loading + '</option>');
         
         // Fetch subcategories via AJAX
         $.ajax({
@@ -498,7 +498,7 @@ $('.ces-form').on('submit', function(e) {
                     // Enable the subcategory select and populate options
                     subcategorySelect.prop('disabled', false);
                     
-                    var options = '<option value="">Select a subcategory</option>';
+                    var options = '<option value="">' + ces_ajax.strings.select_subcategory + '</option>';
                     $.each(response.data, function(index, subcat) {
                         options += '<option value="' + subcat.id + '">' + subcat.name + '</option>';
                     });
@@ -507,13 +507,13 @@ $('.ces-form').on('submit', function(e) {
                 } else {
                     // No subcategories available
                     subcategorySelect.prop('disabled', true);
-                    subcategorySelect.html('<option value="">No subcategories available</option>');
+                    subcategorySelect.html('<option value="">' + ces_ajax.strings.no_subcategories_available + '</option>');
                 }
             },
             error: function() {
                 // Error handling
                 subcategorySelect.prop('disabled', true);
-                subcategorySelect.html('<option value="">Error loading subcategories</option>');
+                subcategorySelect.html('<option value="">' + ces_ajax.strings.error_loading_subcategories + '</option>');
             }
         });
     });

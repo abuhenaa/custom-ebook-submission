@@ -62,7 +62,7 @@ function initPreviewFunctionality() {
                 fileUrl = URL.createObjectURL(file);
                 fileType = 'epub';
             } else {
-                alert('<?php _e( "Please select an EPUB file first", "ces" ); ?>');
+                alert(ces_ajax.strings.please_select_epub_file);
                 return;
             }
         } else if (fileExtension === 'cbz') {
@@ -72,7 +72,7 @@ function initPreviewFunctionality() {
                 fileUrl = URL.createObjectURL(file);
                 fileType = 'cbz';
             } else {
-                alert('<?php _e( "Please select a CBZ file first", "ces" ); ?>');
+                alert(ces_ajax.strings.please_select_cbz_file);
                 return;
             }
         } else if (fileExtension === 'comic_images') {
@@ -82,7 +82,7 @@ function initPreviewFunctionality() {
             handleDocxConversion();
             return;
         } else {
-            alert('<?php _e( "Unsupported file type for preview", "ces" ); ?>');
+            alert(ces_ajax.strings.unsupported_file_type);
             return;
         }
 
@@ -95,18 +95,18 @@ function initPreviewFunctionality() {
 
         var file = fileInput[0].files[0];
         if (!file) {
-            alert('Please select a DOCX file first.');
+            alert(ces_ajax.strings.please_select_docx_file);
             return;
         }
 
         // Validate file type
         if (!file.name.toLowerCase().endsWith('.docx')) {
-            alert('Please select a valid DOCX file.');
+            alert(ces_ajax.strings.please_select_valid_docx_file);
             return;
         }
 
         // Show loading state
-        $('.ces-convert-btn').text('<?php _e( "Converting...", "ces" ); ?>');
+        $('.ces-convert-btn').text(ces_ajax.strings.converting);
         // Show loading indicator if exists
         $('.conversion-loading').show();
 
@@ -138,12 +138,12 @@ function initPreviewFunctionality() {
 
 
                 } else {
-                    alert(response.data.message || 'Conversion failed');
+                    alert(response.data.message || ces_ajax.strings.conversion_failed);
                 }
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', error);
-                alert('An error occurred during conversion. Please try again.');
+                alert(ces_ajax.strings.error_occurred_during_conversion);
             },
             complete: function() {
                 $('.conversion-loading').hide();
@@ -195,7 +195,7 @@ function initPreviewFunctionality() {
         } else if( previewType === 'docx'){
             initEpubViewerFromUrl(fileUrl);
         } else {
-            alert('<?php _e( "Preview is not available", "ces" ); ?>');
+            alert(ces_ajax.strings.preview_not_available);
             closeModal();
         }
     };
@@ -439,7 +439,7 @@ function setupEpubRendition() {
         const comicImagesOrder = JSON.parse(jQuery('#comic-images-order').val() || '[]');
 
         if (comicImagesOrder.length === 0) {
-            alert('<?php _e( "No images to preview. Please add some images first.", "ces" ); ?>');
+            alert(ces_ajax.strings.no_images_to_preview);
             return;
         }
 
@@ -456,7 +456,7 @@ function setupEpubRendition() {
         });
 
         if (imageUrls.length === 0) {
-            alert('<?php _e( "No valid images found to preview.", "ces" ); ?>');
+            alert(ces_ajax.strings.no_valid_images_found);
             return;
         }
 

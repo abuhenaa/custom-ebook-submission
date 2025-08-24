@@ -49,13 +49,13 @@ function ces_get_authors() {
 function ces_display_cbz_preview_pages($cbz_file_path) {    
 
     if (!file_exists($cbz_file_path)) {
-        return '<div class="cbz-error">CBZ file not found</div>';
+        return '<div class="cbz-error">' . __('CBZ file not found', 'ces') . '</div>';
     }
 
     // Open ZIP archive
     $zip = new ZipArchive();
     if ($zip->open($cbz_file_path) !== true) {
-        return '<div class="cbz-error">Could not open CBZ file</div>';
+        return '<div class="cbz-error">' . __('Could not open CBZ file', 'ces') . '</div>';
     }
 
     // Get all image files in archive

@@ -1,229 +1,489 @@
-#, fuzzy
+# Copyright (C) 2024 Custom Ebook Submission
+# This file is distributed under the same license as the Custom Ebook Submission package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Custom Ebook Submission\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-19 14:23+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: \n"
-"Language: \n"
-"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"Project-Id-Version: Custom Ebook Submission 1.0.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/custom-ebook-submission\n"
+"POT-Creation-Date: 2024-01-01 12:00+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Loco https://localise.biz/\n"
-"X-Loco-Version: 2.7.2; wp-6.8.1\n"
-"X-Domain: ces"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 
-#. Description of the plugin
-msgid "A custom plugin to handle ebook submissions."
+#: functions.php:45
+msgid "Requested Categories"
 msgstr ""
 
-#. Author of the plugin
-msgid "Abu Hena"
-msgstr ""
-
-#: functions.php:455 templates/ebook-submission-form.php:35
-msgid "Add New Author"
-msgstr ""
-
-#: functions.php:450
-msgid "All Authors"
-msgstr ""
-
-#: templates/ebook-submission-form.php:32
-msgid "Author"
-msgstr ""
-
-#: functions.php:457
-msgid "Authors"
-msgstr ""
-
-#: functions.php:503
-msgid "Book Information"
-msgstr ""
-
-#: includes/class-ces-ebook-display.php:175
-msgid "Close"
-msgstr ""
-
-#: templates/ebook-submission-form.php:53
-msgid "Cover Image"
-msgstr ""
-
-#. Name of the plugin
-msgid "Custom Ebook Submission"
-msgstr ""
-
-#: functions.php:53
-msgid "Ebook File Preview"
-msgstr ""
-
-#: functions.php:453
-msgid "Edit Author"
-msgstr ""
-
-#: templates/ebook-submission-form.php:123
-msgid "External Print Link (optional)"
-msgstr ""
-
-#: templates/ebook-submission-form.php:89
-msgid "File Type"
-msgstr ""
-
-#. Author URI of the plugin
-msgid "https://www.example.com"
-msgstr ""
-
-#: templates/ebook-submission-form.php:41
-msgid "If not found your author select Add new author"
-msgstr ""
-
-#: functions.php:515
-msgid "ISBN"
-msgstr ""
-
-#: templates/ebook-submission-form.php:26
-msgid "ISBN (optional)"
-msgstr ""
-
-#: templates/ebook-submission-form.php:59
-msgid "Main Category"
-msgstr ""
-
-#: functions.php:456 templates/ebook-submission-form.php:46
-msgid "New Author Name"
-msgstr ""
-
-#: functions.php:451
-msgid "Parent Author"
-msgstr ""
-
-#: functions.php:452
-msgid "Parent Author:"
-msgstr ""
-
-#: templates/ebook-submission-form.php:48
-msgid "Please enter the author name"
-msgstr ""
-
-#: includes/class-ces-form-renderer.php:35
-msgid "Please fill out the form below to submit your eBook for review."
-msgstr ""
-
-#: templates/ebook-submission-form.php:85
-msgid "Price With VAT"
-msgstr ""
-
-#: templates/ebook-submission-form.php:79
-msgid "Price Without VAT"
-msgstr ""
-
-#: functions.php:512
-msgid "Publisher"
-msgstr ""
-
-#: templates/ebook-submission-form.php:22
-msgid "Publisher (optional)"
-msgstr ""
-
-#: functions.php:449
-msgid "Search Authors"
-msgstr ""
-
-#: templates/ebook-submission-form.php:34
-msgid "Select Author"
-msgstr ""
-
-#: functions.php:509
-msgid "Series"
-msgstr ""
-
-#: templates/ebook-submission-form.php:18
-msgid "Series (optional)"
-msgstr ""
-
-#: templates/ebook-submission-form.php:129
-msgid "Submit eBook"
-msgstr ""
-
-#: includes/class-ces-form-renderer.php:34
-msgid "Submit Your eBook"
-msgstr ""
-
-#: functions.php:506
+#: functions.php:52
 msgid "Subtitle"
 msgstr ""
 
-#: templates/ebook-submission-form.php:14
-msgid "Subtitle (optional)"
+#: functions.php:59
+msgid "Series"
 msgstr ""
 
-#: templates/ebook-submission-form.php:68
-msgid "Suggest a new category (optional)"
+#: functions.php:66
+msgid "External Link"
 msgstr ""
 
-#: functions.php:484
-msgid "Supporting Local Bookstores"
+#: functions.php:73
+msgid "Publisher"
 msgstr ""
 
-#: templates/ebook-submission-form.php:73
-msgid "Tags (comma-separated)"
+#: functions.php:80
+msgid "ISBN"
 msgstr ""
 
-#: functions.php:447
-msgctxt "taxonomy general name"
-msgid "Authors"
+#: functions.php:115
+msgid "No categories requested"
 msgstr ""
 
-#: functions.php:448
-msgctxt "taxonomy singular name"
-msgid "Author"
+#: functions.php:135
+msgid "Preview E-book"
 msgstr ""
 
-#: templates/ebook-submission-form.php:10
-msgid "Title"
+#: functions.php:142
+msgid "E-book Preview"
 msgstr ""
 
-#: includes/class-ces-ebook-display.php:174
-msgid "To unlock the full eBook, please purchase it."
+#: functions.php:150
+msgid "Upload an e-book file to enable preview."
 msgstr ""
 
-#: includes/class-ces-ebook-display.php:173
-msgid "Unlock Full eBook"
+#: functions.php:165
+msgid "Security check failed"
 msgstr ""
 
-#: functions.php:454
-msgid "Update Author"
+#: functions.php:171
+msgid "File not found"
 msgstr ""
 
-#: templates/ebook-submission-form.php:110
-msgid "Upload CBZ File"
+#: functions.php:185
+msgid "Failed to extract CBZ file: "
 msgstr ""
 
-#: templates/ebook-submission-form.php:115
-msgid "Upload Comic Images"
+#: functions.php:225
+msgid "No subtitle"
 msgstr ""
 
-#: templates/ebook-submission-form.php:105
-msgid "Upload DOCX File"
+#: functions.php:245
+msgid "No series"
 msgstr ""
 
-#: templates/ebook-submission-form.php:100
-msgid "Upload EPUB File"
+#: functions.php:265
+msgid "No publisher"
 msgstr ""
 
-#: templates/ebook-submission-form.php:117
-msgid ""
-"Upload multiple images that will be converted to CBZ format. You can drag "
-"and drop to reorder them."
+#: functions.php:285
+msgid "No ISBN"
 msgstr ""
 
-#: includes/class-ces-form-renderer.php:27
+#: functions.php:295
+msgid "External Link:"
+msgstr ""
+
+#: functions.php:320
+msgid "Missing parent ID"
+msgstr ""
+
+#: functions.php:350
+msgid "Invalid product ID."
+msgstr ""
+
+#: functions.php:400
+msgid "Book Information"
+msgstr ""
+
+#: functions.php:405
+msgid "Subtitle"
+msgstr ""
+
+#: functions.php:408
+msgid "Series"
+msgstr ""
+
+#: functions.php:411
+msgid "Publisher"
+msgstr ""
+
+#: functions.php:414
+msgid "ISBN"
+msgstr ""
+
+#: functions.php:417
+msgid "Page Number"
+msgstr ""
+
+#: functions.php:420
+msgid "Publication Date"
+msgstr ""
+
+#: functions.php:470
+msgid "Supports Bookstores"
+msgstr ""
+
+#: functions.php:520
+msgid "Supports bookstores"
+msgstr ""
+
+#: functions.php:540
+msgid "Get the printed book:"
+msgstr ""
+
+#: functions.php:545
+msgid "Author's Website"
+msgstr ""
+
+#: functions.php:550
+msgid "Independent Bookstore"
+msgstr ""
+
+#: functions.php:570
+msgid "Paperbook Price:"
+msgstr ""
+
+#: functions.php:575
+msgid "Choose where to buy"
+msgstr ""
+
+#: functions.php:578
+msgid "Personal Website"
+msgstr ""
+
+#: functions.php:581
+msgid "Bookstore"
+msgstr ""
+
+#: functions.php:585
+msgid "Buy Paperbook"
+msgstr ""
+
+#: functions.php:595
+msgid "Please select where you want to buy the paperbook."
+msgstr ""
+
+#: includes/class-ces-form-handler.php:25
+msgid "Blacklisted word detected. Please revise your tags."
+msgstr ""
+
+#: includes/helpers.php:52
+msgid "CBZ file not found"
+msgstr ""
+
+#: includes/helpers.php:57
+msgid "Could not open CBZ file"
+msgstr ""
+
+#: includes/helpers.php:85
+msgid "Preview of The Book"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:35
 msgid "You must be logged in to submit an eBook."
 msgstr ""
 
-#: templates/ebook-submission-form.php:2
-msgid "Your eBook has been submitted for review!"
+#: includes/class-ces-form-renderer.php:50
+msgid "Please upload an image with a 2:3 aspect ratio"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:51
+msgid "Invalid image file."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:52
+msgid "Preview Ebook"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:53
+msgid "Convert Into EPUB"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:54
+msgid "Search for an author..."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:55
+msgid "Add New Author"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:56
+msgid "Select a main category first"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:57
+msgid "Loading..."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:58
+msgid "Select a subcategory"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:59
+msgid "No subcategories available"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:60
+msgid "Error loading subcategories"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:61
+msgid "Please select an EPUB file first"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:62
+msgid "Please select a CBZ file first"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:63
+msgid "Unsupported file type for preview"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:64
+msgid "Please select a DOCX file first."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:65
+msgid "Please select where you want to buy the paperbook."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:66
+msgid "Please select a valid DOCX file."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:67
+msgid "Converting..."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:68
+msgid "Conversion failed"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:69
+msgid "An error occurred during conversion. Please try again."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:70
+msgid "Preview is not available"
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:71
+msgid "No images to preview. Please add some images first."
+msgstr ""
+
+#: includes/class-ces-form-renderer.php:72
+msgid "No valid images found to preview."
+msgstr ""
+
+#: templates/ebook-submission-form.php:7
+msgid "Print Book Link Added Successfully"
+msgstr ""
+
+#: templates/ebook-submission-form.php:8
+msgid "Thank you for adding your print book links."
+msgstr ""
+
+#: templates/ebook-submission-form.php:25
+msgid "Submission Successful"
+msgstr ""
+
+#: templates/ebook-submission-form.php:26
+msgid "Thank you for submitting your eBook. It will be reviewed shortly."
+msgstr ""
+
+#: templates/ebook-submission-form.php:30
+msgid "Would you like to sell your printed book?"
+msgstr ""
+
+#: templates/ebook-submission-form.php:31
+msgid "Please add links where readers can purchase your printed book."
+msgstr ""
+
+#: templates/ebook-submission-form.php:44
+msgid "Author:"
+msgstr ""
+
+#: templates/ebook-submission-form.php:47
+msgid "Publisher:"
+msgstr ""
+
+#: templates/ebook-submission-form.php:52
+msgid "Link to your website or where the printed book is available (required):"
+msgstr ""
+
+#: templates/ebook-submission-form.php:56
+msgid "Link to an independent bookstore (optional):"
+msgstr ""
+
+#: templates/ebook-submission-form.php:58
+msgid "If provided, your book will be marked with \"Supports bookstores\" badge"
+msgstr ""
+
+#: templates/ebook-submission-form.php:60
+msgid "Price of the printed book (optional):"
+msgstr ""
+
+#: templates/ebook-submission-form.php:63
+msgid "Add Print Book"
+msgstr ""
+
+#: templates/ebook-submission-form.php:64
+msgid "Skip this step"
+msgstr ""
+
+#: templates/ebook-submission-form.php:70
+msgid "Submit Your eBook"
+msgstr ""
+
+#: templates/ebook-submission-form.php:71
+msgid "Please fill out the form below to submit your eBook for review."
+msgstr ""
+
+#: templates/ebook-submission-form.php:77
+msgid "Title"
+msgstr ""
+
+#: templates/ebook-submission-form.php:80
+msgid "Subtitle (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:83
+msgid "Description"
+msgstr ""
+
+#: templates/ebook-submission-form.php:86
+msgid "Short Description"
+msgstr ""
+
+#: templates/ebook-submission-form.php:89
+msgid "Series (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:92
+msgid "Publisher (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:95
+msgid "Publication Date"
+msgstr ""
+
+#: templates/ebook-submission-form.php:98
+msgid "ISBN (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:101
+msgid "Page Number (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:105
+msgid "Author"
+msgstr ""
+
+#: templates/ebook-submission-form.php:107
+msgid "Select Author"
+msgstr ""
+
+#: templates/ebook-submission-form.php:108
+msgid "Add New Author"
+msgstr ""
+
+#: templates/ebook-submission-form.php:111
+msgid "If not found your author select Add new author"
+msgstr ""
+
+#: templates/ebook-submission-form.php:115
+msgid "New Author Name"
+msgstr ""
+
+#: templates/ebook-submission-form.php:117
+msgid "Please enter the author name"
+msgstr ""
+
+#: templates/ebook-submission-form.php:121
+msgid "Cover Image"
+msgstr ""
+
+#: templates/ebook-submission-form.php:124
+msgid "Please upload an image with a 2:3 aspect ratio"
+msgstr ""
+
+#: templates/ebook-submission-form.php:128
+msgid "Main Category"
+msgstr ""
+
+#: templates/ebook-submission-form.php:130
+msgid "Select a category"
+msgstr ""
+
+#: templates/ebook-submission-form.php:134
+msgid "Subcategory"
+msgstr ""
+
+#: templates/ebook-submission-form.php:136
+msgid "Select a main category first"
+msgstr ""
+
+#: templates/ebook-submission-form.php:140
+msgid "Suggest a new category (optional)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:143
+msgid "Tags (comma-separated)"
+msgstr ""
+
+#: templates/ebook-submission-form.php:146
+msgid "Price Without VAT"
+msgstr ""
+
+#: templates/ebook-submission-form.php:149
+msgid "Price With VAT"
+msgstr ""
+
+#: templates/ebook-submission-form.php:152
+msgid "File Type"
+msgstr ""
+
+#: templates/ebook-submission-form.php:157
+msgid "Upload EPUB File"
+msgstr ""
+
+#: templates/ebook-submission-form.php:161
+msgid "Upload DOCX File"
+msgstr ""
+
+#: templates/ebook-submission-form.php:165
+msgid "Upload CBZ File"
+msgstr ""
+
+#: templates/ebook-submission-form.php:169
+msgid "Upload Comic Images"
+msgstr ""
+
+#: templates/ebook-submission-form.php:171
+msgid "Upload multiple images that will be converted to CBZ format. You can drag and drop to reorder them."
+msgstr ""
+
+#: templates/ebook-submission-form.php:173
+msgid "Drag & drop images here or click to upload"
+msgstr ""
+
+#: templates/ebook-submission-form.php:179
+msgid "Preview eBook"
+msgstr ""
+
+#: templates/ebook-submission-form.php:182
+msgid "Submit eBook"
+msgstr ""
+
+#: templates/ces-preview-modal.php:8
+msgid "eBook Preview"
+msgstr ""
+
+#: templates/ces-preview-modal.php:12
+msgid "Previous Page"
+msgstr ""
+
+#: templates/ces-preview-modal.php:15
+msgid "Next Page"
 msgstr ""
