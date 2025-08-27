@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Ebook Submission
 Description: A custom plugin to handle ebook submissions.
-Version: 1.0.1
+Version: 1.0.2
 Author: Abu Hena
 Author URI: https://www.example.com
 License: GPL2
@@ -37,7 +37,7 @@ require_once CES_PLUGIN_DIR . 'functions.php';
 function ces_init_plugin(){
     new CES_Form_Renderer();
     new CES_Form_Handler();
-    new CES_Tag_Blacklist();
+    CES_Settings::get_instance();
     new CES_Ebook_Display(); 
     new CES_EPUB_Converter();
 }

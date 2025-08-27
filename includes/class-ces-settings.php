@@ -3,12 +3,20 @@
 defined('ABSPATH') || exit;
 
 class CES_Settings {
+    private static $instance = null;
     private $option_keys = [
         'blacklist' => 'ces_blacklist_words',
         'preview_limit' => 'ces_preview_page_limit'
     ];
 
-    public function __construct() {
+    public static function get_instance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    private function __construct() {
         add_action('admin_menu', [$this, 'register_admin_page']);
     }
 

@@ -17,8 +17,8 @@ class CES_Form_Handler
 
         check_admin_referer( 'ces_submit_nonce', 'ces_nonce' );
 
-        $blacklist = new CES_Tag_Blacklist();
-        if ( $blacklist->has_blacklisted_words( $_POST[ 'tags' ] ?? '' ) ) {
+        $settings = CES_Settings::get_instance();
+        if ( $settings->has_blacklisted_words( $_POST[ 'tags' ] ?? '' ) ) {
             wp_die( __( 'Blacklisted word detected. Please revise your tags.', 'ces' ) );
         }
 

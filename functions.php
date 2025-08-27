@@ -134,7 +134,7 @@ function ces_display_ebook_file_preview_meta_box( $post )
 
     // Only show preview if a file exists
     if ( !empty( $file_url ) ) {
-        $file_type = wp_check_filetype( basename( $file_path ), null );
+        $file_type = wp_check_filetype( basename( $file_url ), null );
         $extension = $file_type[ 'ext' ];
 
         // Display preview button

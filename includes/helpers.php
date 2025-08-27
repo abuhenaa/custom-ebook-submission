@@ -98,10 +98,12 @@ function ces_display_cbz_preview_pages($cbz_file_path) {
     $output .= '<div class="ces-cbz-image-wrapper">';
 
     // If user vendor or admin or purchased product
-    if (current_user_can('administrator') || current_user_can('vendor') ) {
+    if (current_user_can('administrator') || current_user_can('vendor')) {
         $display_images = $image_files; // Show all images
     } else {
-        $display_images = array_slice($image_files, 0, 3); // Limit to first 3 images
+        $settings = CES_Settings::get_instance();
+        $preview_limit = $settings->get_preview_limit();
+        $display_images = array_slice($image_files, 0, $preview_limit); // Limit to preview limit
     }
     
     foreach ($display_images as $image) {

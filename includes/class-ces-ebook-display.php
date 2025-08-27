@@ -6,7 +6,10 @@ if ( !defined( 'ABSPATH' ) ) {
 
 //class for displaying eBook in product page
 class CES_Ebook_Display {
+    private $settings;
+
     public function __construct() {
+        $this->settings = CES_Settings::get_instance();
         add_action( 'woocommerce_after_single_product_summary', [ $this, 'display_epub_preview' ], 5 );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_assets' ] );
         add_action('wp_footer', [$this, 'add_purchase_overlay']);
@@ -85,7 +88,6 @@ class CES_Ebook_Display {
         jQuery(document).ready(function($) {
             
             var hasAccess = <?php echo $has_access ? 'true' : 'false'; ?>;
-            console.log("User has access: " + hasAccess);
             try {
                 
                 // Use a Book constructor with explicit options instead of shorthand format
@@ -103,7 +105,7 @@ class CES_Ebook_Display {
                 });
 
                 var pageCounter = 0;
-                var previewLimit = 3; // Set the limit for free preview pages
+                var previewLimit = <?php echo $this->settings->get_preview_limit(); ?>; // Get the preview limit from settings
                 var previewMessageShown = false;
                 
                 // For preview, start at the first chapter in TOC
