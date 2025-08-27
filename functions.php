@@ -48,7 +48,7 @@ function ces_add_meta_box()
 
     add_meta_box(
         '_category_suggestion', // Unique ID
-        'Requested Categories', // Box title
+        __( 'Requested Categories', 'ces' ), // Box title
         'ces_display_requested_categories_meta_box', // Content callback
         'product', // Post type
         'side', // Context (normal, side, advanced)
@@ -57,7 +57,7 @@ function ces_add_meta_box()
 
     add_meta_box(
         '_ces_subtitle', // Unique ID
-        'Subtitle', // Box title
+        __( 'Subtitle', 'ces' ), // Box title
         'ces_display_subtitle_meta_box', // Content callback
         'product', // Post type
         'normal', // Context (normal, side, advanced)
@@ -66,7 +66,7 @@ function ces_add_meta_box()
 
     add_meta_box(
         '_ces_series',
-        'Series',
+        __( 'Series', 'ces' ),
         'ces_display_series_meta_box',
         'product',
         'normal',
@@ -74,7 +74,7 @@ function ces_add_meta_box()
     );
     add_meta_box(
         '_ces_external_link',
-        'External Link',
+        __( 'External Link', 'ces' ),
         'ces_display_external_link_meta_box',
         'product',
         'normal',
@@ -83,7 +83,7 @@ function ces_add_meta_box()
     //add publisher and isbn metabox to the product
     add_meta_box(
         '_ces_publisher',
-        'Publisher',
+        __( 'Publisher', 'ces' ),
         'ces_display_publisher_meta_box',
         'product',
         'normal',
@@ -91,7 +91,7 @@ function ces_add_meta_box()
     );
     add_meta_box(
         '_ces_isbn',
-        'ISBN',
+        __( 'ISBN', 'ces' ),
         'ces_display_isbn_meta_box',
         'product',
         'normal',
@@ -115,7 +115,7 @@ function ces_display_requested_categories_meta_box( $post )
     if ( !empty( $value ) ) {
         $value = esc_html( $value );
     } else {
-        $value = 'No categories requested';
+        $value = __( 'No categories requested', 'ces' );
     }
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
@@ -139,14 +139,14 @@ function ces_display_ebook_file_preview_meta_box( $post )
 
         // Display preview button
         echo '<div class="ces-preview-container">';
-        echo '<button type="button" class="button ces-preview-button" data-file="' . esc_attr( $file_url ) . '" data-type="' . esc_attr( $extension ) . '" data-path="' . esc_attr( $file_path ) . '">Preview E-book</button>';
+        echo '<button type="button" class="button ces-preview-button" data-file="' . esc_attr( $file_url ) . '" data-type="' . esc_attr( $extension ) . '" data-path="' . esc_attr( $file_path ) . '">' . __( 'Preview E-book', 'ces' ) . '</button>';
         echo '</div>';
 
         // Add popup markup
         echo '<div id="ces-preview-modal" class="ces-modal">
             <div class="ces-modal-content">
                 <span class="ces-close">&times;</span>
-                <h3>E-book Preview</h3>
+                <h3>' . __( 'E-book Preview', 'ces' ) . '</h3>
                 <div class="ces-navigation">
                     <button id="prev-page" class="ces-nav-button"><span class="dashicons dashicons-arrow-left"></span></button>
                     <button id="next-page" class="ces-nav-button"><span class="dashicons dashicons-arrow-right"></span></button>
@@ -156,7 +156,7 @@ function ces_display_ebook_file_preview_meta_box( $post )
         </div>';
 
     } else {
-        echo '<p>Upload an e-book file to enable preview.</p>';
+        echo '<p>' . __( 'Upload an e-book file to enable preview.', 'ces' ) . '</p>';
     }
 }
 
@@ -166,14 +166,14 @@ function ces_process_cbz_ajax()
 {
     // Check nonce
     if ( !isset( $_POST[ 'nonce' ] ) || !wp_verify_nonce( $_POST[ 'nonce' ], 'ces_preview_nonce' ) ) {
-        wp_send_json_error( 'Security check failed' );
+        wp_send_json_error( __( 'Security check failed', 'ces' ) );
     }
 
     // Get file path
     $file_path = isset( $_POST[ 'file_path' ] ) ? sanitize_text_field( $_POST[ 'file_path' ] ) : '';
 
     if ( empty( $file_path ) || !file_exists( $file_path ) ) {
-        wp_send_json_error( 'File not found' );
+        wp_send_json_error( __( 'File not found', 'ces' ) );
     }
 
     // Process CBZ file
@@ -190,7 +190,7 @@ function ces_process_cbz_ajax()
     $result = unzip_file( $file_path, $temp_dir );
 
     if ( is_wp_error( $result ) ) {
-        wp_send_json_error( 'Failed to extract CBZ file: ' . $result->get_error_message() );
+        wp_send_json_error( __( 'Failed to extract CBZ file: ', 'ces' ) . $result->get_error_message() );
     }
 
     // Get list of extracted images
@@ -234,7 +234,7 @@ function ces_display_subtitle_meta_box( $post )
     if ( !empty( $value ) ) {
         $value = esc_html( $value );
     } else {
-        $value = 'No subtitle';
+        $value = __( 'No subtitle', 'ces' );
     }
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
@@ -256,7 +256,7 @@ function ces_display_series_meta_box( $post )
     if ( !empty( $value ) ) {
         $value = esc_html( $value );
     } else {
-        $value = 'No series';
+        $value = __( 'No series', 'ces' );
     }
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
@@ -278,7 +278,7 @@ function ces_display_publisher_meta_box( $post )
     if ( !empty( $value ) ) {
         $value = esc_html( $value );
     } else {
-        $value = 'No publisher';
+        $value = __( 'No publisher', 'ces' );
     }
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
@@ -299,7 +299,7 @@ function ces_display_isbn_meta_box( $post )
     if ( !empty( $value ) ) {
         $value = esc_html( $value );
     } else {
-        $value = 'No ISBN';
+        $value = __( 'No ISBN', 'ces' );
     }
 
     echo "<strong>" . esc_html( $value ) . "</strong>";
@@ -316,7 +316,7 @@ function ces_display_external_link_meta_box( $post )
     wp_nonce_field( 'ces_save_external_link', 'ces_external_link_nonce' );
     // Retrieve the current value of the meta field
     $value = get_post_meta( $post->ID, '_ces_bookstore_link', true );
-    echo "<label for='ces_external_link'>External Link:</label>";
+    echo "<label for='ces_external_link'>" . __( 'External Link:', 'ces' ) . "</label>";
     echo "<input type='text' id='ces_external_link' name='_ces_bookstore_link' value='" . esc_html( $value ) . "' />";
 
 }
@@ -445,7 +445,7 @@ function ces_show_book_info_table()
 function ces_get_subcategories_ajax()
 {
     if ( !isset( $_POST[ 'parent_id' ] ) ) {
-        wp_send_json_error( 'Missing parent ID' );
+        wp_send_json_error( __( 'Missing parent ID', 'ces' ) );
         wp_die();
     }
 
@@ -617,7 +617,7 @@ function ces_buy_paperbook_script() {
         var selectedUrl = selectElement.value;
         
         if (selectedUrl === '') {
-            alert('<?php echo esc_js( __( 'Please select where you want to buy the paperbook.', 'ces' ) ); ?>');
+            alert(ces_ajax.strings.please_select_buy_location);
             return;
         }
         

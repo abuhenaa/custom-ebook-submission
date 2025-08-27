@@ -25,7 +25,32 @@ class CES_Form_Renderer {
         wp_enqueue_script( 'select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js', 'jquery', '4.1.0', false);
         wp_localize_script('ces-form-script', 'ces_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce'    => wp_create_nonce('ces_nonce')
+            'nonce'    => wp_create_nonce('ces_nonce'),
+            'strings'  => array(
+                'please_upload_image_ratio' => __('Please upload an image with a 2:3 aspect ratio', 'ces'),
+                'invalid_image_file' => __('Invalid image file.', 'ces'),
+                'preview_ebook' => __('Preview Ebook', 'ces'),
+                'convert_into_epub' => __('Convert Into EPUB', 'ces'),
+                'search_for_author' => __('Search for an author...', 'ces'),
+                'add_new_author' => __('Add New Author', 'ces'),
+                'select_main_category_first' => __('Select a main category first', 'ces'),
+                'loading' => __('Loading...', 'ces'),
+                'select_subcategory' => __('Select a subcategory', 'ces'),
+                'no_subcategories_available' => __('No subcategories available', 'ces'),
+                'error_loading_subcategories' => __('Error loading subcategories', 'ces'),
+                'please_select_epub_file' => __('Please select an EPUB file first', 'ces'),
+                'please_select_cbz_file' => __('Please select a CBZ file first', 'ces'),
+                'unsupported_file_type' => __('Unsupported file type for preview', 'ces'),
+                'please_select_docx_file' => __('Please select a DOCX file first.', 'ces'),
+                'please_select_buy_location' => __('Please select where you want to buy the paperbook.', 'ces'),
+                'please_select_valid_docx_file' => __('Please select a valid DOCX file.', 'ces'),
+                'converting' => __('Converting...', 'ces'),
+                'conversion_failed' => __('Conversion failed', 'ces'),
+                'error_occurred_during_conversion' => __('An error occurred during conversion. Please try again.', 'ces'),
+                'preview_not_available' => __('Preview is not available', 'ces'),
+                'no_images_to_preview' => __('No images to preview. Please add some images first.', 'ces'),
+                'no_valid_images_found' => __('No valid images found to preview.', 'ces'),
+            )
         ));
     }
 

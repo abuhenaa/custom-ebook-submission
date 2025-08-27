@@ -19,7 +19,7 @@ class CES_Form_Handler
 
         $blacklist = new CES_Tag_Blacklist();
         if ( $blacklist->has_blacklisted_words( $_POST[ 'tags' ] ?? '' ) ) {
-            wp_die( __( 'Blacklisted word detected. Please revise your tags.', 'cesces' ) );
+            wp_die( __( 'Blacklisted word detected. Please revise your tags.', 'ces' ) );
         }
 
         // Handle product creation and metadata
