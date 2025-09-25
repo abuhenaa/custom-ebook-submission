@@ -102,7 +102,7 @@ $('#ces-cover-image').on('change', function () {
             const tags = input.split(',').map(tag => $.trim(tag)).filter(tag => tag.length > 0);
 
             if (tags.length > 20) {
-            $('.tag-notice').text('You can enter a maximum of 20 tags.').css('color', 'red');
+            $('.tag-notice').text(ces_ajax.strings.too_many_tags).css('color', 'red');
              e.preventDefault(); // prevent form submission if inside a form
             }else{
                 //clear
@@ -166,7 +166,7 @@ function sanitizePrice(element) {
     
     // Check if the value is a valid number with max 2 decimal places
     if (!/^\d+(\.\d{1,2})?$/.test(inputVal)) {
-        $('.price-notice').text('Please enter a valid price with no more than 2 decimal places.');
+        $('.price-notice').text(ces_ajax.strings.decimal_price);
         return null;
     } else {
         // Clear error message
@@ -176,7 +176,13 @@ function sanitizePrice(element) {
     const price = parseFloat(inputVal);
     if (isNaN(price) || price < 0) {
         element.val('0.00');
-        $('.price-notice').text('Please enter a valid positive price.');
+        $('.price-notice').text(ces_ajax.strings.positive_price);
+        return null;
+    }
+
+    //restrict price input
+    if(price < 0.99){
+        $('.price-notice').text(ces_ajax.strings.price_restriction);
         return null;
     }
     

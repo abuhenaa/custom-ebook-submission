@@ -50,6 +50,10 @@ class CES_Form_Renderer {
                 'preview_not_available' => __('Preview is not available', 'ces'),
                 'no_images_to_preview' => __('No images to preview. Please add some images first.', 'ces'),
                 'no_valid_images_found' => __('No valid images found to preview.', 'ces'),
+                'price_restriction' => __('Price can not be less than 0.99', 'ces'),
+                'positive_price' => __('Please enter a valid positive price.', 'ces'),
+                'decimal_price' => __('Please enter a valid price with no more than 2 decimal places.', 'ces'),
+                'too_many_tags' => __('You can enter a maximum of 20 tags.', 'ces'),
             )
         ));
     }
