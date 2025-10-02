@@ -53,6 +53,15 @@ class CES_File_Handler{
             update_post_meta($this->product_id, '_ces_ebook_author', sanitize_text_field($processed['metadata']['author'] ?? ''));
         }
 
+         //add file url to the downloadable files array
+         $downloadable_files = [
+            'ces_ebook_file' => [
+                'name' => sanitize_text_field($processed['metadata']['title'] ?? __('Ebook File', 'ces')),
+                'file' => esc_url_raw($processed['file_url'])
+            ]
+        ];
+        update_post_meta($this->product_id, '_downloadable_files', $downloadable_files);
+
     }
 
     /**

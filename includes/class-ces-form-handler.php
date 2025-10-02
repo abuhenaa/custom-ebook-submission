@@ -30,6 +30,12 @@ class CES_Form_Handler
             'post_author' => get_current_user_id(),
          ] );
 
+        //making product downloadable and virtual
+        if ($product_id) {
+            update_post_meta($product_id, '_downloadable', 'yes');
+            update_post_meta($product_id, '_virtual', 'yes');
+        }
+        
          if ($product_id) {
             // Trigger WooCommerce product save action
             do_action('woocommerce_new_product', $product_id,10,2);
