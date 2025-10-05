@@ -151,6 +151,17 @@ class CES_Form_Handler
             update_post_meta( $product_id, '_ces_ebook_file', $docx_to_epub_file_url );
         }
 
+        // add the downloadable file for docx to epub conversion
+        if( $file_type == 'docx' && !empty( $docx_to_epub_file_url ) ){
+            $downloadable_files = [
+                md5( $docx_to_epub_file_url ) => [
+                    'name' => sanitize_file_name( basename( $docx_to_epub_file_url ) ),
+                    'file' => $docx_to_epub_file_url,
+                ],
+            ];
+            update_post_meta( $product_id, '_downloadable_files', $downloadable_files );
+        } 
+
         $file_handler = new CES_File_Handler( $product_id );
         $file_handler->handle_upload( $_FILES, $file_type );
 

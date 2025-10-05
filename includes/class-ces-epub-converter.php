@@ -48,12 +48,12 @@ class CES_EPUB_Converter {
         
         if ($result) {
             wp_send_json_success(array(
-                'message' => 'File converted successfully. Click the preview button to view your eBook.',
+                'message' => __('File converted successfully. Click the preview button to view your eBook.', 'ces'),
                 'file_url' => $result['file_url'],
                 'file_path' => $result['file_path'],
             ));
         } else {
-            wp_send_json_error(array('message' => 'Conversion failed. Please try again.'));
+            wp_send_json_error(array('message' => __('Conversion failed. Please try again.', 'ces')));
         }
     }
     

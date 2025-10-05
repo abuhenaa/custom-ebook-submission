@@ -35,9 +35,11 @@ class CES_File_Handler{
                 $processed = $this->handle_epub_upload($files[$file_key]);
                 break;
             case 'cbz':
-                return $this->handle_cbz_upload($files[$file_key]);
+                $processed = $this->handle_cbz_upload($files[$file_key]);
+                break;
             case 'comic_images':
-                return $this->handle_comic_images_upload($files[$file_key], $files);
+                $processed = $this->handle_comic_images_upload($files[$file_key], $files);
+                break;
             default:
                 // For backwards compatibility, try to detect file type from extension
                 if (!empty($files['ebook_file']) && $files['ebook_file']['error'] === UPLOAD_ERR_OK) {
@@ -110,10 +112,10 @@ class CES_File_Handler{
         $uploaded = wp_handle_upload($file, ['test_form' => false]);
         
         if (isset($uploaded['url'])) {
-            return $this->process_cbz($uploaded['file']);
+            $processed = $this->process_cbz($uploaded['file']);
         }
-        
-        return null;
+
+        return $processed;
     }
 
     /**
@@ -135,7 +137,8 @@ class CES_File_Handler{
         }
         
         // Create CBZ from uploaded images
-        return $this->create_cbz_from_images($files, $product_title, $image_order);
+        $processed =  $this->create_cbz_from_images($files, $product_title, $image_order);
+        return $processed;
     }
 
     /**
