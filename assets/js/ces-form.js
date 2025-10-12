@@ -204,7 +204,33 @@ const VAT_RATE = 5.5;
 
 // Handle price without VAT input
 $('.ces-field #ces-price').on('input change', function() {
-    const price = sanitizePrice($(this));
+    const price = sanitizePrice($(this));    
+
+    //calculate and show royalties
+    let royaltyRate = 50;
+    if( price < 2.83){
+        royaltyRate = 50;
+    }else if(price < 4.73){
+        royaltyRate = 75;
+    }else if(price < 9.47){
+        royaltyRate = 80;
+    } else if( price < 14.21){
+        royaltyRate = 50;
+    }else{
+        royaltyRate = 50;
+    }
+
+    //set 0% if price is null
+    if(price === null){
+        royaltyRate = 0;
+    }
+
+    //shows royalties based on price
+    $('.ces-royalties').show();
+    $('.ces-royalties-rate').text(royaltyRate + '%');
+    const royaltyAmount = (price * royaltyRate) / 100;
+    $('.ces-royalties-amount').text(royaltyAmount.toFixed(2));
+
     if (price === null) {
         $('#ces-vat-price').val('0.00');
         return;

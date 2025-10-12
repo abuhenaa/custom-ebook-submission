@@ -66,8 +66,8 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                 <input type="hidden" id="ces-file-type" name="ces_file_type" value="<?php echo esc_attr($_GET['ces_file_type']); ?>">
                 
                 <div class="form-field">
-                    <label for="personal_website_link"><?php _e('Link to your website or where the printed book is available (required):', 'ces'); ?></label>
-                    <input type="url" name="personal_website_link" id="personal_website_link" required>
+                    <label for="personal_website_link"><?php _e('Link to your website or where the printed book is available (optional):', 'ces'); ?></label>
+                    <input type="url" name="personal_website_link" id="personal_website_link">
                 </div>
                 
                 <div class="form-field">
@@ -76,13 +76,13 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                     <span class="description"><?php _e('If provided, your book will be marked with "Supports bookstores" badge', 'ces'); ?></span>
                 </div>
                 <div class="form-field">
-                    <label for="paperbook_price"><?php _e('Price of the printed book (optional):', 'ces'); ?></label>
-                    <input type="number" name="paperbook_price" id="paperbook_price" step="0.01">
+                    <label for="paperbook_price"><?php _e('Price of the printed book:', 'ces'); ?> <span class="ces-required">*</span></label>
+                    <input type="number" name="paperbook_price" id="paperbook_price" step="0.01" required>
                 </div>
                 
                 <div class="form-buttons">
                     <button type="submit" name="submit_print_book" class="button button-primary"><?php _e('Add Print Book', 'ces'); ?></button>
-                    <a href="<?php echo esc_url(home_url()); ?>" class="button"><?php _e('Skip this step', 'ces'); ?></a>
+                    <!-- <a href="<?php //echo esc_url(home_url()); ?>" class="button"><?php //_e('Skip this step', 'ces'); ?></a> -->
                 </div>
                
             </form>
@@ -141,8 +141,8 @@ endif; ?>
             <input type="text" name="isbn" id="ces-isbn" />
         </div>
         <div class="ces-field">
-            <label for="ces-page-number"><?php _e('Page Number (optional)', 'ces'); ?>:</label>
-            <input type="number" name="page_number" id="ces-page-number" />
+            <label for="ces-page-number"><?php _e('Page Number', 'ces'); ?>:<span class="ces-required">*</span></label>
+            <input type="number" name="page_number" id="ces-page-number" required />
         </div>
 
         <!-- Author selection -->
@@ -164,6 +164,23 @@ endif; ?>
             <label for="ces-new-author"><?php _e('New Author Name', 'ces'); ?>:</label>
             <input type="text" name="new_author" id="ces-new-author" />
             <span class="author-notice"><?php echo esc_html__( 'Please enter the author name','ces'); ?></span>
+        </div>        
+
+        <div class="ces-field">
+            <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>: <span class="ces-required">*</span></label>
+            <select name="main_category" id="ces-main-category" required>
+                <option value=""><?php _e('Select a category', 'ces'); ?></option>
+                <?php foreach (ces_get_main_categories() as $cat): ?>
+                    <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        
+        <div class="ces-field">
+            <label for="ces-subcategory"><?php _e('Subcategory', 'ces'); ?>:</label>
+            <select name="subcategory" id="ces-subcategory" disabled>
+                <option value=""><?php _e('Select a main category first', 'ces'); ?></option>
+            </select>
         </div>
                 
         <!-- Cover image upload -->
@@ -175,28 +192,6 @@ endif; ?>
             <span class="author-notice"><?php echo esc_html__( 'Please upload an image with a 2:3 aspect ratio','ces'); ?></span>
         </div>
 
-    <div class="ces-field">
-        <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>: <span class="ces-required">*</span></label>
-        <select name="main_category" id="ces-main-category" required>
-            <option value=""><?php _e('Select a category', 'ces'); ?></option>
-            <?php foreach (ces_get_main_categories() as $cat): ?>
-                <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    
-    <div class="ces-field">
-        <label for="ces-subcategory"><?php _e('Subcategory', 'ces'); ?>:</label>
-        <select name="subcategory" id="ces-subcategory" disabled>
-            <option value=""><?php _e('Select a main category first', 'ces'); ?></option>
-        </select>
-    </div>
-
-        <div class="ces-field">
-            <label for="ces-category-suggestion"><?php _e('Suggest a new category (optional)', 'ces'); ?>:</label>
-            <input type="text" name="category_suggestion" id="ces-category-suggestion" />
-        </div>
-
         <div class="ces-field">
             <label for="ces-tags"><?php _e('Tags (comma-separated)', 'ces'); ?>:</label>
             <input type="text" name="tags" id="ces-tags" />
@@ -206,6 +201,8 @@ endif; ?>
         <div class="ces-field">
             <label for="ces-price"><?php _e('Price Without VAT', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="number" name="price" step="0.01" id="ces-price" required />
+            <span class="ces-royalties" style="display:none"><?php echo __('You will get: ', 'ces'); ?> <strong class="ces-royalties-amount"></strong> <?php echo __('with the rate of '); ?><strong class="ces-royalties-rate"></strong></span>
+            <br>
             <span class="price-notice"></span>
         </div>
 
