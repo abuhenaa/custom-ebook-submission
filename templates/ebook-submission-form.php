@@ -200,7 +200,7 @@ endif; ?>
         <div class="ces-price-group">
             <div class="ces-field">
                 <label for="ces-price"><?php _e('Price Without VAT', 'ces'); ?>: <span class="ces-required">*</span></label>
-                <input type="number" name="price" step="0.01" id="ces-price" required />                
+                <input type="text" name="price" step="0.01" id="ces-price" required />                
                 <span class="price-notice"></span>
             </div>
             <div class="ces-field">

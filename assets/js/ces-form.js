@@ -112,91 +112,35 @@ $('#ces-cover-image').on('change', function () {
         
 // Common function to sanitize and validate price input
 function sanitizePrice(element) {
-    let inputVal = element.val();
-    let cursorPos = element[0].selectionStart;
-    let dotAdded = false;
-    
-    // Store original length
-    const originalLength = inputVal.length;
-    
-    // Replace any commas with dots
-    if (inputVal.indexOf(',') !== -1) {
-        const commaPos = inputVal.indexOf(',');
-        inputVal = inputVal.replace(/,/g, '.');
-        if (cursorPos > commaPos) {
-            dotAdded = true;
-        }
+    const input = element[0];
+    const start = input.selectionStart; // Remember cursor position
+    const oldVal = element.val();
+    let val = oldVal.replace(',', '.');
+
+    // Allow only digits and a single dot
+    val = val.replace(/[^0-9.]/g, '');
+    const parts = val.split('.');
+
+    // Keep only first dot, remove others
+    if (parts.length > 2) {
+        val = parts[0] + '.' + parts[1];
     }
-    
-    // Allow only one decimal point
-    const firstDotPos = inputVal.indexOf('.');
-    if (firstDotPos !== -1 && firstDotPos !== inputVal.lastIndexOf('.')) {
-        const newVal = inputVal.substring(0, firstDotPos + 1) + 
-                       inputVal.substring(firstDotPos + 1).replace(/\./g, '');
-        inputVal = newVal;
-    }
-    
+
     // Limit to 2 decimal places
-    if (firstDotPos !== -1 && inputVal.length > firstDotPos + 3) {
-        inputVal = inputVal.substring(0, firstDotPos + 3);
-    }
-    
-    // Only update if value changed to avoid cursor jumping
-    if (element.val() !== inputVal) {
-        element.val(inputVal);
-        
-        // Restore cursor position
-        if (dotAdded) {
-            cursorPos = Math.min(cursorPos, inputVal.length);
-            element[0].setSelectionRange(cursorPos, cursorPos);
-        }
-    }
-    
-    // If empty, reset and return null
-    if (!inputVal) {
-        $('.price-notice').text('');
-        return null;
-    }
-    
-    // Allow partial input like "2." during typing
-    if (/^\d+\.?$/.test(inputVal)) {
-        $('.price-notice').text('');
-        return parseFloat(inputVal || 0);
-    }
-    
-    // Check if the value is a valid number with max 2 decimal places
-    if (!/^\d+(\.\d{1,2})?$/.test(inputVal)) {
-        $('.price-notice').text(ces_ajax.strings.decimal_price);
-        return null;
-    } else {
-        // Clear error message
-        $('.price-notice').text('');
-    }
-    
-    const price = parseFloat(inputVal);
-    if (isNaN(price) || price < 0) {
-        element.val('0.00');
-        $('.price-notice').text(ces_ajax.strings.positive_price);
-        return null;
+    if (parts[1] && parts[1].length > 2) {
+        val = parts[0] + '.' + parts[1].substring(0, 2);
     }
 
-    //restrict price input
-    if(price < 0.99){
-        $('.price-notice').text(ces_ajax.strings.price_restriction);
-        return null;
-    }
-    
-    return price;
-}
+    // Only update if value actually changed
+    if (val !== oldVal) {
+        element.val(val);
 
-// Format price on blur
-function setBlurHandler(element) {
-    element.off('blur').on('blur', function() {
-        const value = parseFloat($(this).val());
-        if (!isNaN(value)) {
-            $(this).val(value.toFixed(2));
-        }
-    });
+        // Restore cursor if possible
+        const newPos = Math.min(start, val.length);
+        input.setSelectionRange(newPos, newPos);
+    }
+
+    return val === '' ? null : parseFloat(val);
 }
 
 // VAT rate
@@ -237,9 +181,9 @@ $('.ces-field #ces-price').on('input change', function() {
     
     // Calculate price with VAT
     const priceWithVat = price * (1 + (VAT_RATE / 100));
+    if( ! $('#ces-vat-price').is(':focus') ) // Only update if user is not editing it
     $('#ces-vat-price').val(priceWithVat.toFixed(2));
-    
-    setBlurHandler($(this));
+
 });
 
 // Handle price with VAT input
@@ -254,10 +198,19 @@ $('.ces-field #ces-vat-price').on('input change', function() {
     const priceWithoutVat = priceWithVat / (1 + (VAT_RATE / 100));
     $('#ces-price').val(priceWithoutVat.toFixed(2));
     
-    setBlurHandler($(this));
-
-    $('#ces-price').trigger('change'); // Trigger to recalculate royalties
+    $('#ces-price').trigger('change');
+    
 });
+
+// Format price only once on blur
+$('.ces-field #ces-price, .ces-field #ces-vat-price').on('blur', function() {
+    const value = parseFloat($(this).val());
+    if (!isNaN(value)) {
+        $(this).val(value.toFixed(2));
+    }
+});
+
+
 // Initialize the sortable functionality
 $('#comic-images-preview').sortable({
     items: '.comic-image-item',
