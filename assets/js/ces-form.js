@@ -126,6 +126,13 @@ function sanitizePrice(element) {
         val = parts[0] + '.' + parts[1];
     }
 
+    //show notice if price less than 0.99
+    if (parseFloat(val) < 0.99 && val !== '') {
+        $('.price-notice').text(ces_ajax.strings.price_restriction).css('color', 'red');
+    } else {
+        $('.price-notice').text('');
+    }
+
     // Limit to 2 decimal places
     if (parts[1] && parts[1].length > 2) {
         val = parts[0] + '.' + parts[1].substring(0, 2);
