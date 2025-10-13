@@ -226,10 +226,9 @@ $('.ces-field #ces-price').on('input change', function() {
     }
 
     //shows royalties based on price
-    $('.ces-royalties').show();
-    $('.ces-royalties-rate').text(royaltyRate + '%');
+    $('#ces-rate').val(royaltyRate + '%');
     const royaltyAmount = (price * royaltyRate) / 100;
-    $('.ces-royalties-amount').text(royaltyAmount.toFixed(2));
+    $('#ces-royalty').val(royaltyAmount.toFixed(2));
 
     if (price === null) {
         $('#ces-vat-price').val('0.00');
@@ -256,6 +255,8 @@ $('.ces-field #ces-vat-price').on('input change', function() {
     $('#ces-price').val(priceWithoutVat.toFixed(2));
     
     setBlurHandler($(this));
+
+    $('#ces-price').trigger('change'); // Trigger to recalculate royalties
 });
 // Initialize the sortable functionality
 $('#comic-images-preview').sortable({

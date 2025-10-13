@@ -197,18 +197,24 @@ endif; ?>
             <input type="text" name="tags" id="ces-tags" />
             <span class="tag-notice"> </span>
         </div>
-
-        <div class="ces-field">
-            <label for="ces-price"><?php _e('Price Without VAT', 'ces'); ?>: <span class="ces-required">*</span></label>
-            <input type="number" name="price" step="0.01" id="ces-price" required />
-            <span class="ces-royalties" style="display:none"><?php echo __('You will get: ', 'ces'); ?> <strong class="ces-royalties-amount"></strong> <?php echo __('with the rate of '); ?><strong class="ces-royalties-rate"></strong></span>
-            <br>
-            <span class="price-notice"></span>
-        </div>
-
-        <div class="ces-field">
-            <label for="ces-vat-price"><?php _e('Price With VAT', 'ces'); ?>:</label>
-            <input type="text" name="vat_price" id="ces-vat-price"/>
+        <div class="ces-price-group">
+            <div class="ces-field">
+                <label for="ces-price"><?php _e('Price Without VAT', 'ces'); ?>: <span class="ces-required">*</span></label>
+                <input type="number" name="price" step="0.01" id="ces-price" required />                
+                <span class="price-notice"></span>
+            </div>
+            <div class="ces-field">
+                <label for="ces-vat-price"><?php _e('Price With VAT', 'ces'); ?>:</label>
+                <input type="text" name="vat_price" id="ces-vat-price"/>
+            </div>
+            <div class="ces-field">
+                <label for="ces-royalty"><?php _e('Your Royalty (approx.)', 'ces'); ?>:</label>
+                <input type="text" name="" id="ces-royalty" readonly disabled/>
+            </div>
+            <div class="ces-field">
+                <label for="ces-rate"><?php _e('Rate', 'ces'); ?>:</label>
+                <input type="text" name="" id="ces-rate" value="" readonly disabled />
+            </div>
         </div>
         <div class="ces-field">
             <label for="ces-file-type"><?php _e('File Type', 'ces'); ?>:</label>

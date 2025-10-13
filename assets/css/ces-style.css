@@ -38,6 +38,9 @@
 input#ces-page-number {
     width: 38%;
 }
+span.ces-royalties {
+    font-size: 15px;
+}
 
 /* Cover Image Preview */
 .image-preview {
@@ -210,6 +213,9 @@ header.dokan-dashboard-header .ces-form-header p {
     .ces-field.full {
         grid-column: 1;
     }
+    .ces-price-group .ces-field {
+        margin-bottom: 15px;
+    }
 }
 
 .ces-success-message {
@@ -217,9 +223,18 @@ header.dokan-dashboard-header .ces-form-header p {
     font-weight: 500;
 }
 .price-notice{
-    font-size: 0.9em;
+    font-size: 15px;
     color: #f03f3f;
     margin-top: 10px;
+}
+.ces-price-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    grid-column: 1 / -1;
+}
+.ces-price-group .ces-field {
+    margin-bottom: 15px;
 }
 
 /**
