@@ -136,6 +136,8 @@ class CES_Form_Handler
             $new_author = sanitize_text_field( $_POST[ 'new_author' ] );
             $term_id    = wp_insert_term( $new_author, 'books-author' );
             if ( !is_wp_error( $term_id ) ) {
+                //add meta vendor_id to the author term
+                add_term_meta( $term_id[ 'term_id' ], 'vendor_id', get_current_user_id() );
                 wp_set_object_terms( $product_id, $term_id[ 'term_id' ], 'books-author' );
             }
         }

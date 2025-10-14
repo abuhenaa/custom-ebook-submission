@@ -34,6 +34,13 @@ function ces_get_authors() {
         'taxonomy'   => 'books-author',
         'hide_empty' => false,
         'orderby'    => 'name',
+        'meta_query' => [
+            [
+                'key'     => 'vendor_id',
+                'value'   => get_current_user_id(),
+                'compare' => '=',
+            ],
+        ],
     ];
     return get_terms($args);
 }

@@ -157,14 +157,15 @@ endif; ?>
                 <?php endforeach; ?>
             </select>
             <span class="author-notice"><?php echo esc_html__( 'If not found your author select Add new author','ces'); ?></span>
+            <!-- Author name input -->
+            <div class="ces-field" id="new-author-field" style="display:none;">
+                <label for="ces-new-author"><?php _e('New Author Name', 'ces'); ?>:</label>
+                <input type="text" name="new_author" id="ces-new-author" />
+                <span class="author-notice"><?php echo esc_html__( 'Please enter the author name','ces'); ?></span>
+            </div> 
         </div>
 
-        <!-- Author name input -->
-        <div class="ces-field" id="new-author-field" style="display:none;">
-            <label for="ces-new-author"><?php _e('New Author Name', 'ces'); ?>:</label>
-            <input type="text" name="new_author" id="ces-new-author" />
-            <span class="author-notice"><?php echo esc_html__( 'Please enter the author name','ces'); ?></span>
-        </div>        
+               
 
         <div class="ces-field">
             <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>: <span class="ces-required">*</span></label>
