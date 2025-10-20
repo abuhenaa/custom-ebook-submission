@@ -236,6 +236,10 @@ header.dokan-dashboard-header .ces-form-header p {
 .ces-price-group .ces-field {
     margin-bottom: 15px;
 }
+.dokan-dashboard .ces-form-container button {
+    line-height: 51px;
+    background-color: #5a9fd4;
+}
 
 /**
  *Badge CSS Styles
@@ -313,6 +317,14 @@ header.dokan-dashboard-header .ces-form-header p {
     color: #777;
     font-size: 0.9em;
     margin-top: 3px;
+}
+textarea#ces-description {
+    max-height: 200px !important;
+    height: 200px !important;
+}
+#ces-short-description {
+    max-height: 100px !important;
+    height: 100px !important;
 }
 .ces-buttons {
     display: flex;

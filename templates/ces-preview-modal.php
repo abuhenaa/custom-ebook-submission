@@ -281,7 +281,7 @@ function setupEpubRendition() {
         width: "100%", // rect.width || 800,
         height: "100%", //rect.height || 600,
         spread: 'none',
-        flow: 'scrolled-doc',
+        flow: 'paginated',
     });
 
     // Register single-page theme
@@ -289,16 +289,20 @@ function setupEpubRendition() {
          'body': {
             'width': '100%',
             'max-width': '100%',
-            'display': 'flex',
-            'justify-content': 'center',
             'padding': '10px',
             'margin': '0 auto',
-            'height': 'auto',
+        },
+        'svg': {
+            'width': '60% !important',
+            'height': '100% !important',
+            'max-height': '100% !important',
         },
         'img': {
-            'max-width': '100%',
-            'height': 'auto',
-            'object-fit': 'contain',
+            'width': 'auto !important',
+            'height': 'auto !important',
+            'object-fit': 'contain !important',
+            'display': 'block',
+            'margin': '0 auto',
         }
     });
 
