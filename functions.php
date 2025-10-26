@@ -410,6 +410,21 @@ function ces_show_book_info_table()
     $isbn             = get_post_meta( $post->ID, '_ces_isbn', true );
     $page_number      = get_post_meta( $post->ID, '_ces_page_number', true );
     $publication_date = get_post_meta( $post->ID, 'publication_date', true );
+    $reading_time     = function( $page_count ) {
+        if ( empty($page_count) || $page_count <= 0) { return ''; } // 1 minute par page (estimation standard)
+        $minutes = intval($page_count);
+        if ($minutes < 60) {
+            return sprintf(__('%d minutes de lecture', 'ces'), $minutes);
+        } else {
+            $hours = floor($minutes / 60);
+            $remaining_minutes = $minutes % 60;
+            if ($remaining_minutes === 0) {
+                return sprintf(__('%d heure(s) de lecture', 'ces'), $hours);
+            } else {
+                return sprintf(__('%dh %d minutes de lecture', 'ces'), $hours, $remaining_minutes);
+            }
+        }
+    };
 
     // Only show the table if at least one field is not empty
     if ( !empty( $subtitle ) || !empty( $series ) || !empty( $publisher ) || !empty( $isbn ) ) {
@@ -430,6 +445,9 @@ function ces_show_book_info_table()
         }
         if ( !empty( $page_number ) ) {
             echo '<tr><th>' . __( 'Page Number', 'ces' ) . '</th><td>' . esc_html( $page_number ) . '</td></tr>';
+        }
+        if ( !empty( $reading_time ) ) {
+            echo '<tr><th>' . __( 'Estimated Reading Time', 'ces' ) . '</th><td>' . esc_html( $reading_time( $page_number ) ) . '</td></tr>';
         }
         if ( !empty( $publication_date ) ) {
             echo '<tr><th>' . __( 'Publication Date', 'ces' ) . '</th><td>' . esc_html( $publication_date ) . '</td></tr>';
