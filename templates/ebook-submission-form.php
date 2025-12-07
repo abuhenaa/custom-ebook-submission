@@ -2,7 +2,6 @@
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
-
 if( isset($_GET['print_book_added']) && $_GET['print_book_added'] == 'true' ) {
     echo '<div class="ces-success-message woocommerce-message">';
     echo '<h2>' . __('Print Book Link Added Successfully', 'ces') . '</h2>';
@@ -76,8 +75,8 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
                     <span class="description"><?php _e('If provided, your book will be marked with "Supports bookstores" badge', 'ces'); ?></span>
                 </div>
                 <div class="form-field">
-                    <label for="paperbook_price"><?php _e('Price of the printed book:', 'ces'); ?> <span class="ces-required">*</span></label>
-                    <input type="number" name="paperbook_price" id="paperbook_price" step="0.01" required>
+                    <label for="paperbook_price"><?php _e('Price of the printed book:', 'ces'); ?> </label>
+                    <input type="number" name="paperbook_price" id="paperbook_price" step="0.01">
                 </div>
                 
                 <div class="form-buttons">
@@ -100,6 +99,33 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
     return;
 endif; ?>
 
+<?php if ( isset( $atts['new_product'] ) && 'no' === $atts['new_product'] ): 
+    //get all the product data
+$product_id        = isset( $_GET[ 'product_id' ] ) ? intval( $_GET[ 'product_id' ] ) : 0;
+$product           = wc_get_product( $product_id );
+$product_title     = $product ? $product->get_title() : '';
+$ces_subtitle      = $product ? get_post_meta( $product_id, '_ces_subtitle', true ) : '';
+$description       = $product ? $product->get_description() : '';
+$short_description = $product ? $product->get_short_description() : '';
+$ces_series        = $product ? get_post_meta( $product_id, '_ces_series', true ) : '';
+$ces_publisher     = $product ? get_post_meta( $product_id, '_ces_publisher', true ) : '';
+$publication_date  = $product ? get_post_meta( $product_id, 'publication_date', true ) : '';
+$ces_isbn          = $product ? get_post_meta( $product_id, '_ces_isbn', true ) : '';
+$ces_page_number   = $product ? get_post_meta( $product_id, '_ces_page_number', true ) : '';
+$author_terms      = $product ? wp_get_object_terms( $product_id, 'books-author' ) : [];
+$selected_author   = ! empty( $author_terms ) ? $author_terms[0]->term_id : '';
+$main_category     = $product ? wp_get_object_terms( $product_id, 'product_cat', [ 'parent' => 0 ] ) : [];
+$main_category_id  = ! empty( $main_category ) ? $main_category[0]->term_id : 0;
+$sub_category       = $product ? wp_get_object_terms( $product_id, 'product_cat', [ 'parent' => $main_category_id ] ) : [];
+$sub_category_id    = ! empty( $sub_category ) ? $sub_category[0]->term_id : 0;
+$cover_image_id     = $product ? $product->get_image_id() : 0;
+var_dump($cover_image_id);
+
+
+
+endif;
+?>
+
 <div class="ces-form-header">
     <h2><?php _e('Submit Your eBook', 'ces'); ?></h2>
     <p><?php _e('Please fill out the form below to submit your eBook for review.', 'ces'); ?></p>
@@ -110,39 +136,39 @@ endif; ?>
     <div class="ces-grid">
         <div class="ces-field">
             <label for="ces-title"><?php _e('Title', 'ces'); ?>: <span class="ces-required">*</span></label>
-            <input type="text" name="title" id="ces-title" required />
+            <input type="text" name="title" id="ces-title" value="<?php echo isset($product_title) ? esc_attr($product_title) : ''; ?>" required />
         </div>
         <div class="ces-field">
             <label for="ces-subtitle"><?php _e('Subtitle (optional)', 'ces'); ?>:</label>
-            <input type="text" name="subtitle" id="ces-subtitle" />
+            <input type="text" name="subtitle"  id="ces-subtitle" value="<?php echo isset($ces_subtitle) ? esc_attr($ces_subtitle) : ''; ?>" />
         </div>
         <div class="ces-field">
             <label for="ces-description"><?php _e('Description', 'ces'); ?>: <span class="ces-required">*</span></label>
-            <textarea name="description" id="ces-description" rows="5" required></textarea>
+            <textarea name="description" id="ces-description" rows="5" required><?php echo isset($description) ? esc_textarea($description) : ''; ?></textarea>
         </div>
         <div class="ces-field">
             <label for="ces-short-description"><?php _e('Short Description', 'ces'); ?>:</label>
-            <textarea name="short_description" id="ces-short-description" rows="3"></textarea>
+            <textarea name="short_description" id="ces-short-description" rows="3"><?php echo isset($short_description) ? esc_textarea($short_description) : ''; ?></textarea>
         </div>
         <div class="ces-field">
             <label for="ces-series"><?php _e('Series (optional)', 'ces'); ?>:</label>
-            <input type="text" name="series" id="ces-series" />
+            <input type="text" name="series" id="ces-series" value="<?php echo isset($ces_series) ? esc_attr($ces_series) : ''; ?>" />
         </div>
         <div class="ces-field">
             <label for="ces-publisher"><?php _e('Publisher (optional)', 'ces'); ?>:</label>
-            <input type="text" name="publisher" id="ces-publisher" />
+            <input type="text" name="publisher" id="ces-publisher" value="<?php echo isset($ces_publisher) ? esc_attr($ces_publisher) : ''; ?>" />
         </div>
         <div class="ces-field">
             <label for="ces-publication-date"><?php _e('Publication Date', 'ces'); ?>: <span class="ces-required">*</span> </label>
-            <input type="date" name="publication_date" id="ces-publication-date" required />
+            <input type="date" name="publication_date" id="ces-publication-date" value="<?php echo isset($publication_date) ? esc_attr($publication_date) : ''; ?>" required />
         </div>
         <div class="ces-field">
             <label for="ces-isbn"><?php _e('ISBN (optional)', 'ces'); ?>:</label>
-            <input type="text" name="isbn" id="ces-isbn" />
+            <input type="text" name="isbn" id="ces-isbn" value="<?php echo isset($ces_isbn) ? esc_attr($ces_isbn) : ''; ?>" />
         </div>
         <div class="ces-field">
             <label for="ces-page-number"><?php _e('Page Number', 'ces'); ?>:<span class="ces-required">*</span></label>
-            <input type="number" name="page_number" id="ces-page-number" required />
+            <input type="number" name="page_number" id="ces-page-number" value="<?php echo isset($ces_page_number) ? esc_attr($ces_page_number) : ''; ?>" required />
         </div>
 
         <!-- Author selection -->
@@ -153,8 +179,9 @@ endif; ?>
                 <option value="new_author"><?php _e('Add New Author', 'ces'); ?></option>
                 
                 <?php foreach (ces_get_authors() as $author): ?>
-                    <option value="<?= esc_attr($author->term_id); ?>"><?= esc_html($author->name); ?></option>
+                    <option value="<?= esc_attr($author->term_id); ?>" <?php selected( $selected_author, $author->term_id ); ?>><?= esc_html($author->name); ?></option>
                 <?php endforeach; ?>
+
             </select>
             <span class="author-notice"><?php echo esc_html__( 'If not found your author select Add new author','ces'); ?></span>
             <!-- Author name input -->
@@ -172,7 +199,7 @@ endif; ?>
             <select name="main_category" id="ces-main-category" required>
                 <option value=""><?php _e('Select a category', 'ces'); ?></option>
                 <?php foreach (ces_get_main_categories() as $cat): ?>
-                    <option value="<?= esc_attr($cat->term_id); ?>"><?= esc_html($cat->name); ?></option>
+                    <option value="<?php echo esc_attr($cat->term_id); ?>" <?php selected( $main_category_id, $cat->term_id ); ?>><?= esc_html($cat->name); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
@@ -180,7 +207,7 @@ endif; ?>
         <div class="ces-field">
             <label for="ces-subcategory"><?php _e('Subcategory', 'ces'); ?>:</label>
             <select name="subcategory" id="ces-subcategory" disabled>
-                <option value=""><?php _e('Select a main category first', 'ces'); ?></option>
+                <option value="<?php echo esc_attr($sub_category_id); ?>" <?php selected( $sub_category_id, $sub_category_id ); ?>><?php _e('Select a main category first', 'ces'); ?></option>
             </select>
         </div>
                 
@@ -188,7 +215,13 @@ endif; ?>
         <div class="ces-field cover-upload-field">
             <label for="ces-cover-image"><?php _e('Cover Image', 'ces'); ?>: <span class="ces-required">*</span></label>
             <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" required />
-            <div id="cover-image-preview" class="image-preview"></div>
+            <div id="cover-image-preview" class="image-preview">
+                <?php
+                if ( isset( $cover_image_id ) && $cover_image_id ) {
+                    echo wp_get_attachment_image( $cover_image_id, 'medium' );
+                }
+                ?>
+            </div>
             <div id="cover-image-error" style="color: red; margin-top: 5px;"></div>
             <span class="author-notice"><?php echo esc_html__( 'Please upload an image with a 2:3 aspect ratio','ces'); ?></span>
         </div>

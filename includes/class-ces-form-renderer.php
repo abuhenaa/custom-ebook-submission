@@ -58,7 +58,13 @@ class CES_Form_Renderer {
         ));
     }
 
-    public function render_form() {
+    public function render_form( $atts = [] ) {
+
+        $atts = shortcode_atts( [
+            'new_product' => 'no',
+        ], $atts, 'ebook_submission_form' );
+
+        
 
         // Check if user is logged in
         if (!is_user_logged_in()) {

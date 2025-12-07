@@ -69,15 +69,11 @@ class CES_Form_Handler
 
         //description update
         $description = isset( $_POST[ 'description' ] ) ? wp_kses_post( $_POST[ 'description' ] ) : '';
+        $short_description = isset( $_POST[ 'short_description' ] ) ? wp_kses_post( $_POST[ 'short_description' ] ) : '';
         wp_update_post( [
             'ID'           => $product_id,
             'post_content' => $description,
-        ] );
-        //short description update
-        $short_description = isset( $_POST[ 'short_description' ] ) ? wp_kses_post( $_POST[ 'short_description' ] ) : '';
-        wp_update_post( [
-            'ID'                => $product_id,
-            'post_excerpt'      => $short_description,
+            'post_excerpt' => $short_description,
         ] );
 
         // Save additional meta
@@ -91,7 +87,6 @@ class CES_Form_Handler
         update_post_meta( $product_id, 'publication_date', $publication_date );
 
         //update_post_meta( $product_id, '_ces_external_link', esc_url_raw( $_POST[ 'external_link' ] ?? '' ) );
-        update_post_meta( $product_id, '_ces_main_category', sanitize_text_field( $_POST[ 'main_category' ] ?? '' ) );
         $regular_price = wc_clean( $_POST[ 'price' ] );
         $sale_price    = !empty( $_POST[ 'sale_price' ] ) ? wc_clean( $_POST[ 'sale_price' ] ) : '';
 
