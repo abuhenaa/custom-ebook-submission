@@ -22,12 +22,20 @@ class CES_Form_Handler
             wp_die( __( 'Blacklisted word detected. Please revise your tags.', 'ces' ) );
         }
 
+        //check if new product or editing existing product
+        if( isset( $_POST['new_product'] ) && $_POST['new_product'] === 'no' ){
+            $post_status = get_post_status( (int) $_POST[ 'product_id' ] );
+        }else{
+            $post_status = 'pending';
+        }
+
         // Handle product creation and metadata
         $product_id = wp_insert_post( [
+            'ID'          => isset( $_POST[ 'product_id' ] ) ? (int) $_POST[ 'product_id' ] : 0,
             'post_title'  => sanitize_text_field( $_POST[ 'title' ] ),
-            'post_status' => 'pending',
             'post_type'   => 'product',
             'post_author' => get_current_user_id(),
+            'post_status' => $post_status,
          ] );
 
         //making product downloadable and virtual
@@ -139,6 +147,7 @@ class CES_Form_Handler
 
         // File Handling
         $file_type    = sanitize_text_field( $_POST[ 'file_type' ] ?? '' );
+        update_post_meta( $product_id, '_ces_file_type', $file_type );
         
         // update converted file URL if docx to epub conversion is done
         $docx_to_epub_file_url = isset( $_POST[ '_ces_ebook_file' ] ) ? esc_url_raw( $_POST[ '_ces_ebook_file' ] ) : '';
@@ -156,9 +165,10 @@ class CES_Form_Handler
             ];
             update_post_meta( $product_id, '_downloadable_files', $downloadable_files );
         }
-
-        $file_handler = new CES_File_Handler( $product_id );
-        $file_handler->handle_upload( $_FILES, $file_type );
+        if ( !empty($_FILES['epub_file']['name']) ||  !empty($_FILES['cbz_file']['name']) || !empty($_FILES['comic_images']['name'][0]) || ! empty($_FILES['docx_file']['name']) ) {
+            $file_handler = new CES_File_Handler( $product_id );
+            $file_handler->handle_upload( $_FILES, $file_type );
+        }
 
         // Change this line in CES_Form_Handler class
         wp_redirect(add_query_arg(['submitted' => 'true', 'product_id' => $product_id, 'ces_file_type' => $file_type ], get_permalink()));

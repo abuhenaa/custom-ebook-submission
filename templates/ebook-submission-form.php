@@ -99,7 +99,8 @@ if (isset($_GET['submitted']) && isset($_GET['product_id'])):
     return;
 endif; ?>
 
-<?php if ( isset( $atts['new_product'] ) && 'no' === $atts['new_product'] ): 
+<?php
+if ( $atts['new_product'] == 'no' ) : 
     //get all the product data
 $product_id        = isset( $_GET[ 'product_id' ] ) ? intval( $_GET[ 'product_id' ] ) : 0;
 $product           = wc_get_product( $product_id );
@@ -114,12 +115,27 @@ $ces_isbn          = $product ? get_post_meta( $product_id, '_ces_isbn', true ) 
 $ces_page_number   = $product ? get_post_meta( $product_id, '_ces_page_number', true ) : '';
 $author_terms      = $product ? wp_get_object_terms( $product_id, 'books-author' ) : [];
 $selected_author   = ! empty( $author_terms ) ? $author_terms[0]->term_id : '';
-$main_category     = $product ? wp_get_object_terms( $product_id, 'product_cat', [ 'parent' => 0 ] ) : [];
-$main_category_id  = ! empty( $main_category ) ? $main_category[0]->term_id : 0;
-$sub_category       = $product ? wp_get_object_terms( $product_id, 'product_cat', [ 'parent' => $main_category_id ] ) : [];
-$sub_category_id    = ! empty( $sub_category ) ? $sub_category[0]->term_id : 0;
+//get the main and sub category ids
+$terms = get_the_terms( $product_id, 'product_cat' );
+if ( is_wp_error( $terms ) || empty( $terms ) ) {
+    return null;
+}
+$main_category_id = 0;
+$sub_category_id  = 0;
+foreach ( $terms as $term ) {
+    if ( $term->parent > 0 ) {
+        $main_category_id = $term->parent;    
+        $sub_category_id = $term->term_id;
+    }else{
+        $main_category_id = $term->term_id;
+    }
+}
+
 $cover_image_id     = $product ? $product->get_image_id() : 0;
-var_dump($cover_image_id);
+$tags               = $product ? wp_get_post_terms( $product_id, 'product_tag', [ 'fields' => 'names' ] ) : [];
+$tags_string        = ! empty( $tags ) ? implode( ',', $tags ) : '';
+$price              = $product ? $product->get_price() : '';
+$file_type         = $product ? get_post_meta( $product_id, '_ces_file_type', true ) : '';
 
 
 
@@ -179,7 +195,7 @@ endif;
                 <option value="new_author"><?php _e('Add New Author', 'ces'); ?></option>
                 
                 <?php foreach (ces_get_authors() as $author): ?>
-                    <option value="<?= esc_attr($author->term_id); ?>" <?php selected( $selected_author, $author->term_id ); ?>><?= esc_html($author->name); ?></option>
+                    <option value="<?= esc_attr($author->term_id); ?>" <?php selected( $selected_author ?? '', $author->term_id ); ?>><?= esc_html($author->name); ?></option>
                 <?php endforeach; ?>
 
             </select>
@@ -199,22 +215,22 @@ endif;
             <select name="main_category" id="ces-main-category" required>
                 <option value=""><?php _e('Select a category', 'ces'); ?></option>
                 <?php foreach (ces_get_main_categories() as $cat): ?>
-                    <option value="<?php echo esc_attr($cat->term_id); ?>" <?php selected( $main_category_id, $cat->term_id ); ?>><?= esc_html($cat->name); ?></option>
+                    <option value="<?php echo esc_attr($cat->term_id); ?>" <?php selected( $main_category_id ?? '', $cat->term_id ); ?>><?= esc_html($cat->name); ?></option>
                 <?php endforeach; ?>
             </select>
         </div>
         
         <div class="ces-field">
             <label for="ces-subcategory"><?php _e('Subcategory', 'ces'); ?>:</label>
-            <select name="subcategory" id="ces-subcategory" disabled>
-                <option value="<?php echo esc_attr($sub_category_id); ?>" <?php selected( $sub_category_id, $sub_category_id ); ?>><?php _e('Select a main category first', 'ces'); ?></option>
+            <select name="subcategory" id="ces-subcategory" data-selected="<?php echo esc_attr($sub_category_id ?? ''); ?>" disabled>
+                <option value="<?php echo esc_attr($sub_category_id ?? ''); ?>" <?php selected( $sub_category_id ?? '', $sub_category_id ?? '' ); ?>><?php _e('Select a main category first', 'ces'); ?></option>
             </select>
         </div>
                 
         <!-- Cover image upload -->
         <div class="ces-field cover-upload-field">
             <label for="ces-cover-image"><?php _e('Cover Image', 'ces'); ?>: <span class="ces-required">*</span></label>
-            <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" required />
+            <input type="file" name="cover_image" id="ces-cover-image" accept="image/*" <?php echo isset( $cover_image_id ) ? '' : 'required'; ?> />
             <div id="cover-image-preview" class="image-preview">
                 <?php
                 if ( isset( $cover_image_id ) && $cover_image_id ) {
@@ -228,13 +244,13 @@ endif;
 
         <div class="ces-field">
             <label for="ces-tags"><?php _e('Tags (comma-separated)', 'ces'); ?>:</label>
-            <input type="text" name="tags" id="ces-tags" />
+            <input type="text" name="tags" value="<?php echo isset( $tags_string ) ? esc_attr( $tags_string ) : ''; ?>" id="ces-tags" />
             <span class="tag-notice"> </span>
         </div>
-        <div class="ces-price-group">
+        <div class="ces-price-group">           
             <div class="ces-field">
                 <label for="ces-price"><?php _e('Price Without VAT', 'ces'); ?>: <span class="ces-required">*</span></label>
-                <input type="text" name="price" step="0.01" id="ces-price" required />                
+                <input type="text" name="price" step="0.01" id="ces-price" value="<?php echo isset( $price ) ? esc_attr( $price ) : ''; ?>" required />                
                 <span class="price-notice"></span>
             </div>
             <div class="ces-field">
@@ -251,19 +267,29 @@ endif;
             </div>
         </div>
         <div class="ces-field">
+            <?php
+             $selected_file_type = isset( $file_type ) ? $file_type : 'epub';
+            ?>
             <label for="ces-file-type"><?php _e('File Type', 'ces'); ?>:</label>
             <select name="file_type" id="ces-file-type">
-                <option value="epub">EPUB</option>
-                <option value="docx">DOCX</option>
-                <option value="cbz">CBZ</option>
-                <option value="comic_images">JPG/PNG Images</option>
+                <option value="epub" <?php selected( $selected_file_type, 'epub' ); ?>>EPUB</option>
+                <option value="docx" <?php selected( $selected_file_type, 'docx' ); ?>>DOCX</option>
+                <option value="cbz" <?php selected( $selected_file_type, 'cbz' ); ?>>CBZ</option>
+                <option value="comic_images" <?php selected( $selected_file_type, 'comic_images' ); ?>>JPG/PNG Images</option>
             </select>
         </div>
+        <?php
+         if( $new_product ) {
+            $required_attr = 'required';
+         } else {
+            $required_attr = '';
+         }
+        ?>
 
         <!-- Dynamic file upload fields - will be shown/hidden based on file type selection -->
         <div class="ces-field full file-upload-field" id="epub-upload-field">
             <label for="ces-epub-file"><?php _e('Upload EPUB File', 'ces'); ?>: <span class="ces-required">*</span></label>
-            <input type="file" name="epub_file" id="ces-epub-file" accept=".epub" required/>
+            <input type="file" name="epub_file" id="ces-epub-file" accept=".epub" <?php echo $required_attr; ?>/>
         </div>
 
         <div class="ces-field full file-upload-field" id="docx-upload-field" style="display:none;">
@@ -295,6 +321,14 @@ endif;
         //return $preview_modal; // Output the modal HTML
     ?>
     <div class="ces-buttons">
+        <?php
+        if( ! $new_product ) {
+        ?> 
+            <input type="hidden" name="new_product" value="no" />
+        <?php
+        }
+        ?>
+        <input type="hidden" name="product_id" value="<?php echo isset( $product_id ) ? esc_attr( $product_id ) : ''; ?>" />
         <div class="form-buttons">
             <button type="button" id="ces-preview-btn" class="ces-preview-btn"><?php _e('Preview eBook', 'ces'); ?></button>
         </div>

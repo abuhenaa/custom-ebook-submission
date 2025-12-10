@@ -171,7 +171,7 @@ class CES_Ebook_Display {
         } else {
             //CBZ preview
             $cbz_file_path = get_post_meta($product_id, '_ces_ebook_file_path', true);
-            //var_dump($cbz_file_path); // Debugging line to check the URL
+            
             echo ces_display_cbz_preview_pages( $cbz_file_path );
            
         }

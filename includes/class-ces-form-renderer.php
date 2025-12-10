@@ -61,7 +61,7 @@ class CES_Form_Renderer {
     public function render_form( $atts = [] ) {
 
         $atts = shortcode_atts( [
-            'new_product' => 'no',
+            'new_product' => 'yes',
         ], $atts, 'ebook_submission_form' );
 
         
@@ -76,6 +76,7 @@ class CES_Form_Renderer {
         <div class="ces-form-container">           
 
             <?php
+                $new_product = $atts['new_product'] === 'yes' ? true : false;
                 include CES_PLUGIN_DIR . 'templates/ebook-submission-form.php';
             ?>
             

@@ -490,9 +490,14 @@ $('.ces-form').on('submit', function(e) {
                 if (response.success && response.data.length > 0) {
                     // Enable the subcategory select and populate options
                     subcategorySelect.prop('disabled', false);
+                    var subCatSelected = subcategorySelect.data('selected');
                     
                     var options = '<option value="">' + ces_ajax.strings.select_subcategory + '</option>';
                     $.each(response.data, function(index, subcat) {
+                        if(subCatSelected && subCatSelected == subcat.id){
+                            options += '<option value="' + subcat.id + '" selected>' + subcat.name + '</option>';
+                            return; //skip to next
+                        }
                         options += '<option value="' + subcat.id + '">' + subcat.name + '</option>';
                     });
                     
