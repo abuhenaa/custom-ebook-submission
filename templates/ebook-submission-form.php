@@ -282,7 +282,9 @@ endif;
          if( $new_product ) {
             $required_attr = 'required';
          } else {
-            $required_attr = '';
+            $required_attr = '';            
+            $ebook_file_url = get_post_meta( $product_id, '_ces_ebook_file', true );
+            $ebook_file_name = basename( $ebook_file_url );
          }
         ?>
 
@@ -312,13 +314,14 @@ endif;
             <input type="hidden" name="comic_images_order" id="comic-images-order" />
         </div>
         <input type="hidden" name="_ces_ebook_file" id="converted_epub_file" value="" />
+        <?php
+            if( ! $new_product && isset( $ebook_file_name ) ) {
+                echo '<p class="current-ebook-file">' . sprintf( __( 'Current eBook File: %s', 'ces' ), esc_html( $ebook_file_name ) ) . '</p>';
+            }
+        ?>
     </div>
     <?php
-            
-        //ob_start(); // Start output buffering
         include_once CES_PLUGIN_DIR . 'templates/ces-preview-modal.php'; // Include the preview modal
-        //$preview_modal = ob_get_clean(); // Get the buffered content
-        //return $preview_modal; // Output the modal HTML
     ?>
     <div class="ces-buttons">
         <?php

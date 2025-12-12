@@ -74,13 +74,13 @@ class CES_Ebook_Display {
         $has_access = $this->user_has_purchased($product_id);
         ?>
         <div id="epub-preview-container" style="margin-top: 40px;">
-            <h3><?php esc_html_e('Preview this eBook', 'textdomain'); ?></h3>
+            <h3><?php esc_html_e('Preview this eBook', 'ces'); ?></h3>
             <?php if (!$has_access): ?>
-                <p class="ces-sample-note"><?php esc_html_e('This is a sample preview. Purchase to unlock the full book.', 'textdomain'); ?></p>
+                <p class="ces-sample-note"><?php esc_html_e('This is a sample preview. Purchase to unlock the full book.', 'ces'); ?></p>
             <?php endif; ?>
             <div class="ces-controls">
-                <button id="prev-page"><?php esc_html_e('Previous', 'textdomain'); ?></button>
-                <button id="next-page"><?php esc_html_e('Next', 'textdomain'); ?></button>
+                <button id="prev-page"><?php esc_html_e('Previous', 'ces'); ?></button>
+                <button id="next-page"><?php esc_html_e('Next', 'ces'); ?></button>
             </div>
             <div id="epub-viewer" style="height: 500px; border: 1px solid #ccc;"></div>
         </div>

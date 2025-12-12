@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //define constants
 define( 'CES_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CES_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
-define( 'CES_PLUGIN_VERSION', '1.1.1' );
+define( 'CES_PLUGIN_VERSION', '1.1.2' );
 
 //Autoload classes
 spl_autoload_register( function ( $class_name ) {
