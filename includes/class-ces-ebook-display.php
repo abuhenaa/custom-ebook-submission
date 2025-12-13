@@ -68,7 +68,6 @@ class CES_Ebook_Display {
         global $post;
         $product_id = $post->ID;
         $epub_url = get_post_meta($product_id, '_ces_ebook_file', true);
-        //var_dump($epub_url); // Debugging line to check the URL
         
         if ($epub_url && pathinfo($epub_url, PATHINFO_EXTENSION) == 'epub') {
         $has_access = $this->user_has_purchased($product_id);

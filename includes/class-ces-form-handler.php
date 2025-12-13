@@ -29,6 +29,12 @@ class CES_Form_Handler
             $post_status = 'pending';
         }
 
+        $comment_status = 'open';
+        if( ! empty( $_GET['product_id'] ) ){
+            $existing_product_id = (int) $_GET['product_id'];
+            $comment_status = get_post_field( 'comment_status', $existing_product_id );
+        }
+
         // Handle product creation and metadata
         $product_id = wp_insert_post( [
             'ID'          => isset( $_POST[ 'product_id' ] ) ? (int) $_POST[ 'product_id' ] : 0,
@@ -36,6 +42,7 @@ class CES_Form_Handler
             'post_type'   => 'product',
             'post_author' => get_current_user_id(),
             'post_status' => $post_status,
+            'comment_status' => $comment_status,
          ] );
 
         //making product downloadable and virtual
