@@ -427,7 +427,7 @@ function ces_show_book_info_table()
     };
 
     // Only show the table if at least one field is not empty
-    if ( !empty( $subtitle ) || !empty( $series ) || !empty( $publisher ) || !empty( $isbn ) ) {
+    if ( !empty( $page_number ) ) {
         echo '<div class="ces-book-info-table">';
         echo '<h3 style="margin-bottom:15px">' . __( 'Book Information', 'ces' ) . '</h3>';
         echo '<table>';
