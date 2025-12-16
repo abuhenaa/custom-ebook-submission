@@ -28,7 +28,7 @@ class CES_Ebook_Display {
             wp_enqueue_script('jszip');
             
             // Load ePub.js with explicit version
-            wp_register_script('epub-js', 'https://cdn.jsdelivr.net/npm/epubjs@0.3.88/dist/epub.min.js', ['jszip'], '0.3.88', true);
+            wp_register_script('epub-js', 'https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js', ['jszip'], '0.3.93', true);
             wp_enqueue_script('epub-js');
 
     }
@@ -81,7 +81,7 @@ class CES_Ebook_Display {
                 <button id="prev-page"><?php esc_html_e('Previous', 'ces'); ?></button>
                 <button id="next-page"><?php esc_html_e('Next', 'ces'); ?></button>
             </div>
-            <div id="epub-viewer" style="height: 500px; border: 1px solid #ccc;"></div>
+            <div id="epub-viewer" style="height: 700px; border: 1px solid #ccc;"></div>
         </div>
         <script>
         jQuery(document).ready(function($) {
@@ -95,37 +95,58 @@ class CES_Ebook_Display {
                 });
                 // Create rendition
                 var rendition = book.renderTo("epub-viewer", {
+                    method: "default",
                     width: "100%",
                     height: "100%",
+                    padding: 10,
                     spread: "none",
                     flow: "paginated",
                     minSpreadWidth: 800,
                     gap: 10,
                 });
+            // Register single-page theme
+                rendition.themes.register('image-fix', {
+                    'body': {
+                        'width': '100%',
+                        'max-width': '100%',
+                        'padding': '10px',
+                        'margin': '0 auto',
+                    },
+                    'svg': {
+                        'width': '60% !important',
+                        'height': '100% !important',
+                        'max-height': '100% !important',
+                    },
+                    'img': {
+                        'width': 'auto !important',
+                        'height': 'auto !important',
+                        'object-fit': 'contain !important',
+                        'display': 'block',
+                        'margin': '0 auto',
+                    }
+                });
 
+                rendition.themes.select('image-fix');
                 var pageCounter = 0;
                 var previewLimit = <?php echo $this->settings->get_preview_limit(); ?>; // Get the preview limit from settings
                 var previewMessageShown = false;
                 
                 // For preview, start at the first chapter in TOC
-                book.loaded.navigation.then(function(nav) {
-                    var first = nav.toc[0];
-                    if (first) {
-                        rendition.display(first.href);
-                    } else {
-                        rendition.display()
-                    }
-                });
+                // book.loaded.navigation.then(function(nav) {
+                //     var first = nav.toc[0];
+                //     if (first) {
+                //         rendition.display(first.href);
+                //     } else {
+                //         rendition.display()
+                //     }
+                // });
+                rendition.display(0);
 
                 // Track page direction for accurate counting
                 var isForward = true;
 
                 // Listen for the "relocated" event to track page changes
                 rendition.on("relocated", function(location) {
-                    // Only count new page views, not back navigation
-                    if (isForward) {
-                        pageCounter++;
-                    }
                     
                     // Reset the direction flag
                     isForward = true;
@@ -145,6 +166,7 @@ class CES_Ebook_Display {
                 $("#prev-page").on("click", function() {
                     rendition.prev();
                     isForward = false; // Set direction to backward
+                    pageCounter = Math.max(0, pageCounter - 1); 
                 });
 
                 $("#next-page").on("click", function() {
