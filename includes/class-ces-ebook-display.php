@@ -95,13 +95,10 @@ class CES_Ebook_Display {
                 });
                 // Create rendition
                 var rendition = book.renderTo("epub-viewer", {
-                    method: "default",
                     width: "100%",
                     height: "100%",
-                    padding: 10,
                     spread: "none",
                     flow: "paginated",
-                    minSpreadWidth: 800,
                     gap: 10,
                 });
             // Register single-page theme
@@ -127,8 +124,21 @@ class CES_Ebook_Display {
                 });
 
                 rendition.themes.select('image-fix');
-                var pageCounter = 0;
-                var previewLimit = <?php echo $this->settings->get_preview_limit(); ?>; // Get the preview limit from settings
+                // Display and force proper layout
+                rendition.display().then(() => {
+                    rendition.resized = false; // Reset resized flag
+                    setTimeout(() => {
+                        rendition.resize();
+                    }, 100); // Delay to ensure layout is ready
+                
+
+                return book.locations.generate(1024);
+            }).catch(error => {
+                console.error("Error generating locations:", error);
+            });
+
+            var pageCounter = 0;
+            var previewLimit = <?php echo $this->settings->get_preview_limit(); ?>; // Get the preview limit from settings
                 var previewMessageShown = false;
                 
                 // For preview, start at the first chapter in TOC
@@ -140,7 +150,7 @@ class CES_Ebook_Display {
                 //         rendition.display()
                 //     }
                 // });
-                rendition.display(0);
+                //rendition.display();
 
                 // Track page direction for accurate counting
                 var isForward = true;
@@ -175,8 +185,7 @@ class CES_Ebook_Display {
                     } else if (pageCounter <= previewLimit) {
                         // Allow forward navigation only if within the preview limit
                         rendition.next();
-                        pageCounter++; 
-                        console.log(pageCounter) // Increment counter on forward navigation
+                        pageCounter++;  // Increment counter on forward navigation
                     }else {
                         // If already at limit, just show the overlay
                         $("#ces-purchase-overlay").css("display", "flex");
@@ -193,8 +202,9 @@ class CES_Ebook_Display {
             //CBZ preview
             $cbz_file_path = get_post_meta($product_id, '_ces_ebook_file_path', true);
             
-            echo ces_display_cbz_preview_pages( $cbz_file_path );
-           
+            if( ! empty( $cbz_file_path ) && pathinfo( $cbz_file_path, PATHINFO_EXTENSION ) == 'cbz' ) {
+                echo ces_display_cbz_preview_pages( $cbz_file_path );
+            }
         }
     }
 
