@@ -685,3 +685,24 @@ function ces_buy_options_styles() {
     </style>
     <?php
 }
+
+// add second author name below the product title
+add_action( 'woocommerce_single_product_summary', 'ces_display_second_author', 6 );
+
+function ces_display_second_author() {
+    global $product;
+
+    if ( !$product ) {
+        return;
+    }
+
+    $product_id = $product->get_id();
+    $second_author = get_post_meta( $product_id, '_ces_second_author', true );
+    if ( !empty( $second_author ) ) {
+        echo '<div class="ces-second-author" >';
+        echo '<strong>' . __( 'Second Author: ', 'ces' ) . '</strong> ';
+        echo esc_html( $second_author );
+        echo '<br/>';
+        echo '</div>';
+    }
+}

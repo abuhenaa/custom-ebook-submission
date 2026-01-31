@@ -115,6 +115,7 @@ $ces_isbn          = $product ? get_post_meta( $product_id, '_ces_isbn', true ) 
 $ces_page_number   = $product ? get_post_meta( $product_id, '_ces_page_number', true ) : '';
 $author_terms      = $product ? wp_get_object_terms( $product_id, 'books-author' ) : [];
 $selected_author   = ! empty( $author_terms ) ? $author_terms[0]->term_id : '';
+$second_author     = $product ? get_post_meta( $product_id, '_ces_second_author', true ) : '';
 //get the main and sub category ids
 $terms = get_the_terms( $product_id, 'product_cat' );
 if ( is_wp_error( $terms ) || empty( $terms ) ) {
@@ -207,8 +208,10 @@ endif;
                 <span class="author-notice"><?php echo esc_html__( 'Please enter the author name','ces'); ?></span>
             </div> 
         </div>
-
-               
+        <div class="ces-field">
+            <label for="ces-second-author"><?php _e('Second Author (optional)', 'ces'); ?>:</label>
+            <input type="text" name="second_author" id="ces-second-author" value="<?php echo isset($second_author) ? esc_attr($second_author) : ''; ?>" />  
+        </div>               
 
         <div class="ces-field">
             <label for="ces-main-category"><?php _e('Main Category', 'ces'); ?>: <span class="ces-required">*</span></label>

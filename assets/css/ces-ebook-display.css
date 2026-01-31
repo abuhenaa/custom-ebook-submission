@@ -159,3 +159,7 @@ body.calibre p {
 .ces-modal-controls button:hover {
     background: #5168c6;
 }
+.single-product div.product .product-meta-wrapper {
+    align-items: flex-start !important;
+    flex-direction: column !important;
+}

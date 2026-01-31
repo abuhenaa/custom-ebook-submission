@@ -152,6 +152,10 @@ class CES_Form_Handler
             }
         }
 
+        // Second Author handling
+        $second_author = sanitize_text_field( $_POST[ 'second_author' ] ?? '' );
+        update_post_meta( $product_id, '_ces_second_author', $second_author );
+
         // File Handling
         $file_type    = sanitize_text_field( $_POST[ 'file_type' ] ?? '' );
         update_post_meta( $product_id, '_ces_file_type', $file_type );
